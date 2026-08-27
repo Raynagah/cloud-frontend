@@ -1,7 +1,7 @@
 // src/LoginButton.jsx
 import React from 'react';
 import { useMsal } from "@azure/msal-react";
-import { loginRequest } from "../auth/authconfig";
+import { loginRequest } from "../auth/AuthConfig";
 
 export function LoginButton() {
     const { instance, accounts } = useMsal();
