@@ -1,13 +1,13 @@
 // src/TokenSender.jsx
 import React, { useState, useEffect } from 'react';
 import { useMsal } from "@azure/msal-react";
-import { apiRequest } from "./auth/authconfig";
+import { apiRequest } from "./auth/AuthConfig";
 
 // URL del backend: se puede sobreescribir con VITE_API_URL en un archivo .env
 // Ruta relativa "/api/v1": el proxy de Vite (vite.config.js) la reenvia a
 // http://localhost:8080 evitando CORS. NO poner "localhost:8080/..." aqui,
 // fetch lo interpretaria como URL invalida dentro del origen del frontend.
-const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:8081/api/v1/status";
+const backendUrl = import.meta.env.VITE_API_URL || "https://5151d4kj38.execute-api.us-east-1.amazonaws.com/desarrollo/api/v1/status";
 
 export function TokenSender() {
     const { instance, accounts } = useMsal();
