@@ -6,7 +6,7 @@ import './index.css';
 
 import { PublicClientApplication, EventType } from "@azure/msal-browser";
 import { MsalProvider } from "@azure/msal-react";
-import { msalConfig } from "./auth/authconfig";
+import { msalConfig } from "./auth/AuthConfig";
 
 const msalInstance = new PublicClientApplication(msalConfig);
 

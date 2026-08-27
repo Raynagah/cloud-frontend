@@ -1,7 +1,7 @@
 // src/TokenSender.jsx
 import React, { useState, useEffect } from 'react';
 import { useMsal } from "@azure/msal-react";
-import { apiRequest } from "./auth/authconfig";
+import { apiRequest } from "./auth/AuthConfig";
 
 // URL del backend: se puede sobreescribir con VITE_API_URL en un archivo .env
 // Ruta relativa "/api/v1": el proxy de Vite (vite.config.js) la reenvia a
