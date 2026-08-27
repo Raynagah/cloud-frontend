@@ -2,8 +2,8 @@ export const msalConfig = {
     auth: {
         clientId: "5afd63dd-9376-4b61-a4f7-688b2cb81fd6",       // Reemplaza con el Application (client) ID de tu registro en Azure AD / Entra ID
         authority: "https://login.microsoftonline.com/78b145ef-56b9-4397-b87c-27b242a9fce5", // Reemplaza con tu Directory (tenant) ID o usa "common" si es multi-tenant
-        redirectUri: "https://n2mnxks3b7.execute-api.us-east-1.amazonaws.com/desarrollo",    // Debe coincidir exactamente con la URL configurada en las Redirect URIs de Azure
-        postLogoutRedirectUri: "https://n2mnxks3b7.execute-api.us-east-1.amazonaws.com/desarrollo",
+        redirectUri: "https://n2mnxks3b7.execute-api.us-east-1.amazonaws.com/desarrollo/",    // Debe coincidir exactamente con la URL configurada en las Redirect URIs de Azure
+        postLogoutRedirectUri: "https://n2mnxks3b7.execute-api.us-east-1.amazonaws.com/desarrollo/",
     },
     cache: {
         cacheLocation: "sessionStorage",         // Dónde se guardan los datos de la sesión ("sessionStorage" o "localStorage")
