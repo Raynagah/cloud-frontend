@@ -1,140 +1,183 @@
 // src/TokenSender.jsx
 import React, { useState, useEffect } from 'react';
 import { useMsal } from "@azure/msal-react";
-import { apiRequest } from "./auth/AuthConfig";
 
-// URL del backend: se puede sobreescribir con VITE_API_URL en un archivo .env
-// Ruta relativa "/api/v1": el proxy de Vite (vite.config.js) la reenvia a
-// http://localhost:8080 evitando CORS. NO poner "localhost:8080/..." aqui,
-// fetch lo interpretaria como URL invalida dentro del origen del frontend.
-const backendUrl = import.meta.env.VITE_API_URL || "https://5151d4kj38.execute-api.us-east-1.amazonaws.com/desarrollo/api/v1/status";
+// Apuntamos directamente a tu microservicio local
+const MS_USUARIOS_URL = "http://localhost:8081/api/usuarios";
 
 export function TokenSender() {
-    const { instance, accounts } = useMsal();
-    const [tokenJWT, setTokenJWT] = useState("");
-    const [apiResponse, setApiResponse] = useState("");
-    const [loading, setLoading] = useState(false);
+    const { accounts } = useMsal();
+    
+    // Estados para manejar la lógica
+    const [status, setStatus] = useState('checking'); // 'checking', 'user_exists', 'needs_registration', 'error'
+    const [backendData, setBackendData] = useState(null); // Aquí guardaremos el Token JWT y datos del MS
+    const [errorMessage, setErrorMessage] = useState('');
 
-    // Adquiere el token: primero silencioso y, si requiere interaccion
-    // (ej. consentimiento de un scope nuevo), navega a Azure y vuelve.
-    const acquireAccessToken = async () => {
-        const request = {
-            ...apiRequest,
-            account: accounts[0]
+    // Estado para el formulario de registro
+    const [formData, setFormData] = useState({
+        edad: '',
+        genero: 'Masculino',
+        telefono: '',
+        direccion: '',
+        ocupacion: '',
+        tipoUsuario: 'cliente' // Por defecto
+    });
+
+    // 1. Cuando el componente carga y hay un usuario de Microsoft, intentamos hacer login en TU backend
+    useEffect(() => {
+        if (accounts.length > 0) {
+            intentarLoginBackend(accounts[0].username); // username suele contener el correo en Azure
+        }
+    }, [accounts]);
+
+    const intentarLoginBackend = async (correo) => {
+        setStatus('checking');
+        try {
+            const response = await fetch(`${MS_USUARIOS_URL}/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ correo: correo }) // Enviamos el SsoLoginRequestDTO
+            });
+
+            if (response.ok) {
+                // El usuario existe en la BD
+                const data = await response.json();
+                setBackendData(data); // Guarda el Token, sessionId y el usuario
+                setStatus('user_exists');
+            } else if (response.status === 401) {
+                // 401: Microsoft lo validó, pero NO existe en tu BD local
+                setStatus('needs_registration');
+            } else {
+                setErrorMessage(`Error del servidor: ${response.status}`);
+                setStatus('error');
+            }
+        } catch (error) {
+            setErrorMessage('Error de red: No se pudo conectar con ms-usuarios en el puerto 8081');
+            setStatus('error');
+        }
+    };
+
+    // Manejador del formulario para registrar usuario nuevo
+    const handleRegister = async (e) => {
+        e.preventDefault();
+        setStatus('checking');
+
+        const cuentaMicrosoft = accounts[0];
+        
+        // Armamos el objeto con los datos de MS + los del formulario
+        const nuevoUsuario = {
+            correo: cuentaMicrosoft.username,
+            nombre: cuentaMicrosoft.name, // Lo sacamos de Microsoft
+            edad: parseInt(formData.edad),
+            genero: formData.genero,
+            telefono: formData.telefono,
+            direccion: formData.direccion,
+            ocupacion: formData.ocupacion,
+            tipoUsuario: formData.tipoUsuario
         };
 
         try {
-            const response = await instance.acquireTokenSilent(request);
-            return response.accessToken;
-        } catch (silentError) {
-            console.warn("Fallo el token silencioso, redirigiendo a Azure:", silentError);
-            sessionStorage.setItem("msal_pending_api_call", "1");
-            await instance.acquireTokenRedirect(request);
-            return null;
-        }
-    };
-
-    const handleGetTokenAndCallApi = async () => {
-        if (accounts.length === 0) return;
-
-        setLoading(true);
-        setApiResponse("");
-
-        try {
-            const accessToken = await acquireAccessToken();
-            // Si es null, se inicio una redireccion a Azure: al volver, el
-            // efecto de abajo reejecuta esta funcion automaticamente.
-            if (!accessToken) return;
-            setTokenJWT(accessToken);
-            console.log("Token JWT obtenido con éxito:", accessToken);
-
-            // Enviar el token al Backend / API Gateway mediante Authorization: Bearer
-            const res = await fetch(backendUrl, {
-                method: "GET",
-                headers: {
-                    "Authorization": `Bearer ${accessToken}`
-                }
+            const response = await fetch(MS_USUARIOS_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(nuevoUsuario)
             });
 
-            // El backend puede responder texto plano o JSON; se parsea de forma tolerante.
-            const text = await res.text();
-            let data;
-            try {
-                data = JSON.parse(text);
-            } catch {
-                data = text;
-            }
-
-            if (!res.ok) {
-                setApiResponse(`HTTP ${res.status} ${res.statusText}\n\n${typeof data === "string" ? data : JSON.stringify(data, null, 2)}`);
+            if (response.ok || response.status === 201) {
+                // Se creó exitosamente. Ahora volvemos a hacer login para obtener el Token.
+                intentarLoginBackend(cuentaMicrosoft.username);
             } else {
-                setApiResponse(typeof data === "string" ? data : JSON.stringify(data, null, 2));
+                const errData = await response.text();
+                setErrorMessage(`Error al registrar: ${errData}`);
+                setStatus('error');
             }
-
         } catch (error) {
-            console.error("Error al adquirir el token o consultar la API:", error);
-            setApiResponse("Error crítico de autenticación: " + error.message);
-        } finally {
-            setLoading(false);
+            setErrorMessage('Error de red al intentar registrar al usuario.');
+            setStatus('error');
         }
     };
 
-    // Si la pagina recargo por una redireccion de consentimiento, reejecuta
-    // automaticamente la llamada que quedo pendiente.
-    useEffect(() => {
-        if (sessionStorage.getItem("msal_pending_api_call") === "1") {
-            sessionStorage.removeItem("msal_pending_api_call");
-            handleGetTokenAndCallApi();
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    // --- RENDERIZADOS SEGÚN EL ESTADO ---
 
     if (accounts.length === 0) return null;
 
-    return (
-        <div style={{ marginTop: '20px', padding: '20px', backgroundColor: '#f9f9f9', border: '1px solid #ddd', borderRadius: '6px' }}>
-            <h3>Prueba de envío de Token al Backend</h3>
-            <p style={{ fontSize: '14px', color: '#555' }}>
-                Haz clic para obtener tu Token JWT de Azure y enviarlo en el header <code style={{ background: '#eee', padding: '2px 4px' }}>Authorization: Bearer &lt;token&gt;</code>.
-            </p>
+    if (status === 'checking') {
+        return <div style={{ padding: '20px', color: '#005a9e' }}>Conectando con ms-usuarios (BD local)... ⏳</div>;
+    }
 
-            <button
-                onClick={handleGetTokenAndCallApi}
-                disabled={loading}
-                style={{
-                    backgroundColor: '#107c10',
-                    color: 'white',
-                    border: 'none',
-                    padding: '10px 18px',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    fontWeight: '600',
-                    marginTop: '10px'
-                }}
-            >
-                {loading ? "Obteniendo Token..." : "Obtener Token y Enviar al Backend"}
-            </button>
+    if (status === 'error') {
+        return <div style={{ padding: '20px', color: 'red', background: '#fdd' }}>{errorMessage}</div>;
+    }
 
-            {tokenJWT && (
+    // PANTALLA: EL USUARIO YA EXISTE EN LA BASE DE DATOS
+    if (status === 'user_exists' && backendData) {
+        return (
+            <div style={{ marginTop: '20px', padding: '20px', backgroundColor: '#e7f4e4', border: '1px solid #107c10', borderRadius: '6px' }}>
+                <h3 style={{ color: '#107c10' }}>¡Autenticación Exitosa en tu Backend! ✅</h3>
+                <p>El usuario fue encontrado en la base de datos PostgreSQL local.</p>
+                
+                <div style={{ background: 'white', padding: '15px', borderRadius: '4px', marginTop: '10px' }}>
+                    <strong>Datos del Usuario (Desde BD):</strong>
+                    <ul style={{ listStyle: 'none', padding: 0 }}>
+                        <li>ID: {backendData.usuario.id}</li>
+                        <li>Nombre: {backendData.usuario.nombre}</li>
+                        <li>Rol: {backendData.usuario.tipoUsuario}</li>
+                        <li>Edad: {backendData.usuario.edad}</li>
+                    </ul>
+                </div>
+
                 <div style={{ marginTop: '15px' }}>
-                    <h4>Token JWT Capturado:</h4>
+                    <h4>Token JWT Generado por ms-usuarios:</h4>
                     <textarea
                         readOnly
-                        value={tokenJWT}
+                        value={backendData.token}
                         rows={4}
-                        style={{ width: '100%', fontFamily: 'monospace', fontSize: '11px', padding: '8px', background: '#fff' }}
+                        style={{ width: '100%', fontFamily: 'monospace', fontSize: '11px', padding: '8px' }}
                     />
                 </div>
-            )}
+            </div>
+        );
+    }
 
-            {apiResponse && (
-                <div style={{ marginTop: '15px' }}>
-                    <h4>Respuesta del Backend / API Gateway:</h4>
-                    <pre style={{ background: '#333', color: '#adff2f', padding: '10px', borderRadius: '4px', overflowX: 'auto', fontSize: '12px' }}>
-                        {apiResponse}
-                    </pre>
-                </div>
-            )}
-        </div>
-    );
+    // PANTALLA: EL USUARIO NO EXISTE -> PEDIR DATOS FALTANTES
+    if (status === 'needs_registration') {
+        return (
+            <div style={{ marginTop: '20px', padding: '20px', backgroundColor: '#fff3cd', border: '1px solid #ffeeba', borderRadius: '6px' }}>
+                <h3 style={{ color: '#856404' }}>¡Hola {accounts[0].name}! Es tu primera vez aquí. 👋</h3>
+                <p style={{ color: '#856404' }}>Tu correo <strong>{accounts[0].username}</strong> fue verificado por Microsoft, pero necesitamos un par de datos más para registrarte en nuestro sistema.</p>
+                
+                <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '20px', maxWidth: '400px' }}>
+                    <div>
+                        <label>Edad:</label><br/>
+                        <input type="number" required value={formData.edad} onChange={e => setFormData({...formData, edad: e.target.value})} style={{width: '100%', padding: '5px'}} min="18" max="100"/>
+                    </div>
+                    <div>
+                        <label>Género:</label><br/>
+                        <select value={formData.genero} onChange={e => setFormData({...formData, genero: e.target.value})} style={{width: '100%', padding: '5px'}}>
+                            <option value="Masculino">Masculino</option>
+                            <option value="Femenino">Femenino</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Teléfono:</label><br/>
+                        <input type="text" required value={formData.telefono} onChange={e => setFormData({...formData, telefono: e.target.value})} style={{width: '100%', padding: '5px'}}/>
+                    </div>
+                    <div>
+                        <label>Dirección:</label><br/>
+                        <input type="text" value={formData.direccion} onChange={e => setFormData({...formData, direccion: e.target.value})} style={{width: '100%', padding: '5px'}}/>
+                    </div>
+                    <div>
+                        <label>Ocupación:</label><br/>
+                        <input type="text" value={formData.ocupacion} onChange={e => setFormData({...formData, ocupacion: e.target.value})} style={{width: '100%', padding: '5px'}}/>
+                    </div>
+                    <button type="submit" style={{ backgroundColor: '#0078d4', color: 'white', padding: '10px', border: 'none', borderRadius: '4px', cursor: 'pointer', marginTop: '10px', fontWeight: 'bold' }}>
+                        Completar Registro
+                    </button>
+                </form>
+            </div>
+        );
+    }
+
+    return null;
 }
