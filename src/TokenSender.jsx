@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useMsal } from "@azure/msal-react";
 
 // Apuntamos directamente a tu microservicio local
-const MS_USUARIOS_URL = "http://3.208.93.5:8081/api/usuarios";
+const MS_USUARIOS_URL = "https://nku8zd8ok9.execute-api.us-east-1.amazonaws.com/desarrollo1/api/usuarios";
 
 export function TokenSender() {
     const { accounts } = useMsal();
