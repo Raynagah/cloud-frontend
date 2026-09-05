@@ -1,38 +1,53 @@
-import React from 'react';
-import { LoginButton } from '../molecules/LoginButton';
+import React, { useEffect, useState } from 'react';
+import { getProductos } from '../functions/apiService';
 
 export function DashboardPage() {
     const backendDataStr = localStorage.getItem('backendData');
     const backendData = backendDataStr ? JSON.parse(backendDataStr) : null;
+    const [productos, setProductos] = useState([]);
+    const [cargando, setCargando] = useState(true);
 
-    if (!backendData) {
-        return <p style={{ textAlign: 'center', marginTop: '40px' }}>No hay datos de sesión local. Por favor inicia sesión de nuevo.</p>;
-    }
+    useEffect(() => {
+        if (backendData?.token) {
+            cargarProductos(backendData.token);
+        }
+    }, []);
 
-    const { usuario, token } = backendData;
+    const cargarProductos = async (token) => {
+        try {
+            const res = await getProductos(token);
+            if (res.ok) {
+                const data = await res.json();
+                setProductos(data);
+            } else {
+                console.error("Error al obtener productos");
+            }
+        } catch (error) {
+            console.error("Error de red", error);
+        } finally {
+            setCargando(false);
+        }
+    };
+
+    if (!backendData) return <p>Sesión inválida.</p>;
 
     return (
-        <div style={{ maxWidth: '800px', margin: '40px auto', padding: '20px', backgroundColor: '#e7f4e4', border: '1px solid #107c10', borderRadius: '6px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h3 style={{ color: '#107c10', margin: 0 }}>¡Dashboard Principal! ✅</h3>
-                <LoginButton /> {/* Esto renderizará el botón de Cerrar Sesión automáticamente */}
-            </div>
-            <p>Bienvenido a la aplicación, tu cuenta está verificada.</p>
-            
-            <div style={{ background: 'white', padding: '15px', borderRadius: '4px', marginTop: '15px' }}>
-                <strong>Tus Datos:</strong>
-                <ul style={{ paddingLeft: '20px' }}>
-                    <li>ID: {usuario.id}</li>
-                    <li>Nombre: {usuario.nombre}</li>
-                    <li>Rol: {usuario.tipoUsuario}</li>
-                    <li>Ocupación: {usuario.ocupacion}</li>
-                </ul>
-            </div>
-
-            <div style={{ marginTop: '15px' }}>
-                <h4>Token JWT Activo:</h4>
-                <textarea readOnly value={token} rows={4} style={{ width: '100%', fontFamily: 'monospace', fontSize: '11px', padding: '8px' }} />
-            </div>
+        <div>
+            <h2>Catálogo de Productos 🛒</h2>
+            {cargando ? <p>Cargando productos...</p> : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px', marginTop: '20px' }}>
+                    {productos.map(prod => (
+                        <div key={prod.id} style={{ backgroundColor: 'white', padding: '15px', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+                            <h3 style={{ margin: '0 0 10px 0', color: '#333' }}>{prod.nombre}</h3>
+                            <p style={{ fontSize: '14px', color: '#666', height: '40px' }}>{prod.descripcion}</p>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '15px' }}>
+                                <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#107c10' }}>${prod.precio}</span>
+                                <span style={{ fontSize: '12px', padding: '4px 8px', backgroundColor: '#e7f4e4', borderRadius: '12px' }}>Stock: {prod.stock}</span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 }

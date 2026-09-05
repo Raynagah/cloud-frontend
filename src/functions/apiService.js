@@ -1,6 +1,6 @@
 // src/functions/apiService.js
 const API_URL = "https://nku8zd8ok9.execute-api.us-east-1.amazonaws.com/desarrollo1/api/usuarios";
-
+const API_PRODUCTOS_URL = "https://nku8zd8ok9.execute-api.us-east-1.amazonaws.com/desarrollo1/api/v1/productos";
 // Función para intentar el login en tu backend
 export const loginBackend = async (correo) => {
     return await fetch(`${API_URL}/login`, {
@@ -16,5 +16,16 @@ export const registrarUsuario = async (usuarioData) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(usuarioData)
+    });
+};
+
+// Función para obtener productos
+export const getProductos = async (token) => {
+    return await fetch(API_PRODUCTOS_URL, {
+        method: 'GET',
+        headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}` // Enviamos el JWT para seguridad
+        }
     });
 };
