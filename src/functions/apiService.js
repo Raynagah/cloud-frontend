@@ -1,6 +1,6 @@
 // src/functions/apiService.js
 const API_URL = "https://nku8zd8ok9.execute-api.us-east-1.amazonaws.com/desarrollo1/api/usuarios";
-const API_PRODUCTOS_URL = "https://nku8zd8ok9.execute-api.us-east-1.amazonaws.com/desarrollo1/api/v1/productos";
+const API_PRODUCTOS_URL = "https://peq4cfx9b1.execute-api.us-east-1.amazonaws.com/desarrolloprocarr/api/v1/productos";
 // Función para intentar el login en tu backend
 export const loginBackend = async (correo) => {
     return await fetch(`${API_URL}/login`, {
