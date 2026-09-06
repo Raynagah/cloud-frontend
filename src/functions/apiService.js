@@ -33,3 +33,13 @@ export const getProductos = async (token) => {
         }
     });
 };
+
+export const getProductoById = async (id, token) => {
+    return await fetch(`${API_PRODUCTOS_URL}/${id}`, {
+        method: 'GET',
+        headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}` 
+        }
+    });
+};

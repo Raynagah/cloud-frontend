@@ -6,13 +6,13 @@ import { LoginPage } from './pages/LoginPage';
 import { RegistroPage } from './pages/RegistroPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { PerfilPage } from './pages/PerfilPage';
+import { ProductoDetallePage } from './pages/ProductoDetallePage'; // <- AÑADIDO
 import { MainLayout } from './templates/MainLayout';
 
 function App() {
   const isAuthenticated = useIsAuthenticated();
 
   return (
-    // Recuerda dejar el basename que configuramos antes
     <BrowserRouter basename="/desarrollo">
       <Routes>
         <Route path="/" element={<LoginPage />} />
@@ -23,6 +23,8 @@ function App() {
         <Route element={isAuthenticated ? <MainLayout /> : <Navigate to="/" />}>
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/perfil" element={<PerfilPage />} />
+            {/* NUEVA RUTA PARA EL DETALLE */}
+            <Route path="/producto/:id" element={<ProductoDetallePage />} />
         </Route>
 
       </Routes>
