@@ -1,3 +1,4 @@
+// src/pages/RegistroPage.jsx
 import React, { useState } from 'react';
 import { useMsal } from "@azure/msal-react";
 import { useNavigate } from 'react-router-dom';
@@ -6,7 +7,7 @@ import { registrarUsuario, loginBackend } from '../functions/apiService';
 export function RegistroPage() {
     const { accounts } = useMsal();
     const navigate = useNavigate();
-    const [estado, setEstado] = useState('idle'); // 'idle', 'cargando', 'error'
+    const [estado, setEstado] = useState('idle');
     const [mensajeError, setMensajeError] = useState('');
 
     const [formData, setFormData] = useState({
@@ -19,6 +20,7 @@ export function RegistroPage() {
         e.preventDefault();
         setEstado('cargando');
         const cuenta = accounts[0];
+        const microsoftToken = localStorage.getItem('tempToken'); // Recuperamos el token
 
         const nuevoUsuario = {
             correo: cuenta.username,
@@ -28,13 +30,22 @@ export function RegistroPage() {
         };
 
         try {
-            const response = await registrarUsuario(nuevoUsuario);
+            // Mandamos los datos y el token
+            const response = await registrarUsuario(nuevoUsuario, microsoftToken);
+            
             if (response.ok || response.status === 201) {
-                // Registro exitoso -> Login automático para sacar el JWT
-                const loginRes = await loginBackend(cuenta.username);
+                // Si el registro es exitoso, hacemos login para guardar todo
+                const loginRes = await loginBackend(cuenta.username, microsoftToken);
+                
                 if (loginRes.ok) {
-                    const data = await loginRes.json();
-                    localStorage.setItem('backendData', JSON.stringify(data));
+                    const usuarioBD = await loginRes.json();
+                    
+                    localStorage.setItem('backendData', JSON.stringify({
+                        usuario: usuarioBD,
+                        token: microsoftToken
+                    }));
+                    
+                    localStorage.removeItem('tempToken'); // Limpiamos la basura
                     navigate('/dashboard');
                 }
             } else {

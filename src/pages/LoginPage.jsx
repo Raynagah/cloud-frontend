@@ -4,33 +4,48 @@ import { useMsal } from "@azure/msal-react";
 import { useNavigate } from 'react-router-dom';
 import { LoginButton } from '../molecules/LoginButton';
 import { loginBackend } from '../functions/apiService';
+import { loginRequest } from "../auth/AuthConfig"; // IMPORTANTE: importar tus scopes
 
 export function LoginPage() {
-    const { accounts } = useMsal();
+    const { instance, accounts } = useMsal(); // Agregamos 'instance'
     const navigate = useNavigate();
-    const [estado, setEstado] = useState('esperando'); // 'esperando', 'cargando', 'error'
+    const [estado, setEstado] = useState('esperando');
 
     useEffect(() => {
-        // Si el usuario ya se autenticó con Microsoft, verificamos en el Backend
         if (accounts.length > 0) {
-            verificarEnBackend(accounts[0].username);
+            verificarEnBackend(accounts[0]); // Pasamos la cuenta completa
         }
     }, [accounts]);
 
-    const verificarEnBackend = async (correo) => {
+    const verificarEnBackend = async (cuenta) => {
         setEstado('cargando');
         try {
-            const response = await loginBackend(correo);
+            // 1. OBTENEMOS EL TOKEN DE MICROSOFT SILENCIOSAMENTE
+            const tokenResponse = await instance.acquireTokenSilent({
+                ...loginRequest,
+                account: cuenta
+            });
+            const microsoftToken = tokenResponse.idToken; // o accessToken, dependiendo de cómo lo lee tu backend (normalmente idToken para Azure B2C/Entra ID)
+
+            // 2. HACEMOS LOGIN EN EL BACKEND ENVIANDO EL TOKEN
+            const response = await loginBackend(cuenta.username, microsoftToken);
 
             if (response.ok) {
-                // El usuario existe en la BD -> Vamos al dashboard
-                const data = await response.json();
-                // Opcional: Podrías guardar el token en localStorage o en un Contexto global aquí
-                localStorage.setItem('backendData', JSON.stringify(data));
+                const usuarioBD = await response.json();
+                
+                // 3. ARMAMOS NUESTRO OBJETO CON EL TOKEN DE MICROSOFT
+                const backendData = {
+                    usuario: usuarioBD,
+                    token: microsoftToken
+                };
+
+                localStorage.setItem('backendData', JSON.stringify(backendData));
                 navigate('/dashboard');
             } 
             else if (response.status === 401) {
-                // Microsoft lo validó, pero no está en la BD -> Vamos a registrarlo
+                // Microsoft validó, pero no está en BD -> Registrar
+                // Guardamos temporalmente el token para la página de registro
+                localStorage.setItem('tempToken', microsoftToken); 
                 navigate('/registro');
             } 
             else {
@@ -39,7 +54,7 @@ export function LoginPage() {
             }
         } catch (error) {
             setEstado('error');
-            console.error("Error de red:", error);
+            console.error("Error al obtener token de MS o de red:", error);
         }
     };
 
@@ -53,7 +68,7 @@ export function LoginPage() {
             {estado === 'cargando' ? (
                 <p style={{ color: '#005a9e', fontWeight: 'bold' }}>Verificando credenciales... ⏳</p>
             ) : estado === 'error' ? (
-                <p style={{ color: 'red' }}>Hubo un error de conexión con el servidor. Intenta nuevamente.</p>
+                <p style={{ color: 'red' }}>Hubo un error de conexión. Intenta nuevamente.</p>
             ) : (
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
                     <LoginButton />
