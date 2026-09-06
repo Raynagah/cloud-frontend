@@ -8,6 +8,7 @@ import { DashboardPage } from './pages/DashboardPage';
 import { PerfilPage } from './pages/PerfilPage';
 import { ProductoDetallePage } from './pages/ProductoDetallePage'; // <- AÑADIDO
 import { MainLayout } from './templates/MainLayout';
+import { CarritoPage } from './pages/CarritoPage';
 
 function App() {
   const isAuthenticated = useIsAuthenticated();
@@ -25,6 +26,7 @@ function App() {
             <Route path="/perfil" element={<PerfilPage />} />
             {/* NUEVA RUTA PARA EL DETALLE */}
             <Route path="/producto/:id" element={<ProductoDetallePage />} />
+            <Route path="/carrito" element={<CarritoPage />} />
         </Route>
 
       </Routes>

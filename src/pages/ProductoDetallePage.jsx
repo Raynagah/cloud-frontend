@@ -1,7 +1,8 @@
+// src/pages/ProductoDetallePage.jsx
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getProductoById } from '../functions/apiService';
-import { Button } from '../atoms/Button'; // <- Importamos el átomo
+import { getProductoById, agregarItemCarrito } from '../functions/apiService';
+import { Button } from '../atoms/Button';
 
 export function ProductoDetallePage() {
     const { id } = useParams();
@@ -11,6 +12,10 @@ export function ProductoDetallePage() {
     
     const [producto, setProducto] = useState(null);
     const [cargando, setCargando] = useState(true);
+    
+    // NUEVOS ESTADOS para manejar cantidad y carga del botón
+    const [cantidad, setCantidad] = useState(1);
+    const [procesando, setProcesando] = useState(false);
 
     useEffect(() => {
         if (backendData?.token) {
@@ -24,11 +29,60 @@ export function ProductoDetallePage() {
             if (res.ok) {
                 const data = await res.json();
                 setProducto(data);
+                // Si el stock es 0, seteamos la cantidad a 0, sino a 1
+                setCantidad(data.stock > 0 ? 1 : 0);
             }
         } catch (err) {
             console.error("Error:", err);
         } finally {
             setCargando(false);
+        }
+    };
+
+    // --- FUNCIONES PARA SUMAR Y RESTAR CANTIDAD ---
+    const sumarCantidad = () => {
+        if (cantidad < producto.stock) {
+            setCantidad(cantidad + 1);
+        }
+    };
+
+    const restarCantidad = () => {
+        if (cantidad > 1) {
+            setCantidad(cantidad - 1);
+        }
+    };
+
+    // --- FUNCIÓN PARA AGREGAR AL CARRITO ---
+    const handleAgregarCarrito = async (redirigirAlCarrito) => {
+        if (!backendData?.token || cantidad <= 0) return;
+
+        setProcesando(true);
+        try {
+            const res = await agregarItemCarrito(
+                producto.id, 
+                cantidad, 
+                producto.precio, // Pasamos el precio al backend
+                backendData.token
+            );
+
+            if (res.ok) {
+                // Actualizamos el stock localmente para no tener que recargar la página entera
+                setProducto(prev => ({ ...prev, stock: prev.stock - cantidad }));
+                setCantidad(1); // Reseteamos el contador
+
+                if (redirigirAlCarrito) {
+                    navigate('/carrito'); // Redirige a la página del carrito (asegúrate de tener esta ruta)
+                } else {
+                    alert("¡Producto agregado al carrito con éxito!");
+                }
+            } else {
+                alert("Hubo un problema al agregar el producto al carrito.");
+            }
+        } catch (error) {
+            console.error("Error agregando al carrito:", error);
+            alert("Error de conexión al agregar al carrito.");
+        } finally {
+            setProcesando(false);
         }
     };
 
@@ -47,18 +101,64 @@ export function ProductoDetallePage() {
             
             <div style={{ backgroundColor: '#f3f2f1', padding: '20px', borderRadius: '6px', margin: '20px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontSize: '32px', fontWeight: 'bold', color: '#107c10' }}>${producto.precio}</span>
-                <span style={{ fontSize: '14px', color: '#555' }}>Disponibles: <strong>{producto.stock}</strong></span>
+                <span style={{ fontSize: '14px', color: '#555' }}>
+                    Disponibles: <strong style={{ color: producto.stock > 0 ? '#107c10' : '#d83b01' }}>{producto.stock}</strong>
+                </span>
             </div>
 
+            {/* CONTROLES DE CANTIDAD */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '20px' }}>
+                <span style={{ fontWeight: 'bold' }}>Cantidad:</span>
+                <Button 
+                    onClick={restarCantidad} 
+                    variant="secondary" 
+                    style={{ padding: '5px 12px', fontSize: '18px' }}
+                    disabled={cantidad <= 1 || producto.stock === 0}
+                >
+                    -
+                </Button>
+                <span style={{ fontSize: '20px', width: '30px', textAlign: 'center' }}>
+                    {cantidad}
+                </span>
+                <Button 
+                    onClick={sumarCantidad} 
+                    variant="secondary" 
+                    style={{ padding: '5px 12px', fontSize: '18px' }}
+                    disabled={cantidad >= producto.stock || producto.stock === 0}
+                >
+                    +
+                </Button>
+                <span style={{ fontSize: '14px', color: '#666' }}>
+                    (Subtotal: ${ (producto.precio * cantidad).toFixed(2) })
+                </span>
+            </div>
+
+            {/* BOTONES DE ACCIÓN */}
             <div style={{ display: 'flex', gap: '15px' }}>
-                <Button variant="danger" style={{ flex: 1, fontSize: '16px' }} onClick={() => console.log('Agregar al carrito', producto.id)}>
-                    Agregar al carrito 🛒
+                <Button 
+                    variant="danger" 
+                    style={{ flex: 1, fontSize: '16px' }} 
+                    onClick={() => handleAgregarCarrito(false)}
+                    disabled={procesando || producto.stock === 0}
+                >
+                    {procesando ? 'Agregando...' : 'Agregar al carrito 🛒'}
                 </Button>
                 
-                <Button variant="secondary" style={{ flex: 1, fontSize: '16px' }} onClick={() => console.log('Ir al carrito')}>
-                    Ir al carrito 🛍️
+                <Button 
+                    variant="primary" 
+                    style={{ flex: 1, fontSize: '16px' }} 
+                    onClick={() => handleAgregarCarrito(true)}
+                    disabled={procesando || producto.stock === 0}
+                >
+                    Añadir e ir al carrito 🛍️
                 </Button>
             </div>
+            
+            {producto.stock === 0 && (
+                <p style={{ color: '#d83b01', marginTop: '15px', textAlign: 'center', fontWeight: 'bold' }}>
+                    Producto agotado por el momento.
+                </p>
+            )}
         </div>
     );
 }
