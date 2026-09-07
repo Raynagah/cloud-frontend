@@ -47,9 +47,18 @@
 .product-card__description {
     font-size: 0.85rem;
     color: #6c757d;
-    height: 40px;
-    overflow: hidden;
     margin-bottom: 15px;
+    
+    /* La magia del truncado elegante */
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Mostrará exactamente 2 líneas y luego pondrá ... */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    
+    /* Reemplazamos el height fijo por un min-height para mantenerlas alineadas */
+    height: auto; 
+    min-height: 40px; 
 }
 
 .product-card__meta {

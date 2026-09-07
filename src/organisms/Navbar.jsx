@@ -8,7 +8,7 @@ export function Navbar() {
     return (
         <nav className="navbar">
             <div className="navbar__left">
-                <h2 className="navbar__brand">TiendaGeek</h2>
+                <h2 className="navbar__brand">Pedidos360</h2>
                 <Link to="/dashboard" className="navbar__link">
                     Productos
                 </Link>

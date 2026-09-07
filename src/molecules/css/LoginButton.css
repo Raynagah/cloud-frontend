@@ -13,12 +13,14 @@
 }
 
 .login-btn__greeting {
-    font-size: 1rem;
-    color: #4a4a4a;
+    font-size: 0.85rem; /* Letra más pequeña */
+    color: #b3b3b3; /* Gris claro para no resaltar tanto */
+    text-transform: capitalize; /* Convierte "NICOLAS" a "Nicolas" */
 }
 
 .login-btn__greeting strong {
-    color: #7a28cb; /* Morado vibrante */
+    color: #d5b8ff; /* Morado pastel que combina con tu logo */
+    font-weight: 500; /* Un poco menos grueso */
 }
 
 /* Botón de Cerrar Sesión */
