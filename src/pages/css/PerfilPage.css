@@ -1,18 +1,28 @@
 /* Contenedor para centrar el perfil en la pantalla */
 .profile-page__wrapper {
-    width: 100%;
+    /* TRUCO: Forzar a que ocupe el ancho de la pantalla completa (100vw) ignorando al padre */
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+
     min-height: 100vh; /* Ocupa toda la altura de la ventana */
     
     background-image: url('../../assets/FondoPagPerfil.png'); 
     background-size: cover; 
     background-position: center; 
-    background-attachment: fixed; /* Opcional: el fondo se queda quieto al hacer scroll */
+    background-attachment: fixed; /* El fondo se queda quieto al hacer scroll */
     
     /* Centramos la tarjeta en medio de toda esta pantalla */
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 40px 20px; 
+    
+    /* Prevenir que el padding o el truco sumen ancho extra */
+    box-sizing: border-box;
 }
 
 /* 2. LA TARJETA DEL PERFIL */
