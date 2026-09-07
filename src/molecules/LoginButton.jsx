@@ -1,6 +1,6 @@
 import React from 'react';
 import { useMsal } from "@azure/msal-react";
-import { loginRequest } from "../../auth/AuthConfig";
+import { loginRequest } from "../auth/AuthConfig";
 import './css/LoginButton.css'; // Importamos el CSS exclusivo
 
 export function LoginButton() {

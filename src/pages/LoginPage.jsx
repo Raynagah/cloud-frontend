@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useMsal } from "@azure/msal-react";
 import { useNavigate } from 'react-router-dom';
-import { LoginButton } from '../components/molecules/LoginButton'; // Ajusta la ruta si es necesario
+import { LoginButton } from '../molecules/LoginButton'; // Ajusta la ruta si es necesario
 import { loginBackend } from '../functions/apiService';
 import { loginRequest } from "../auth/AuthConfig";
-import './LoginPage.css'; // Importamos el CSS exclusivo
+import './css/LoginPage.css'; // Importamos el CSS exclusivo
 
 export function LoginPage() {
     const { instance, accounts } = useMsal();
