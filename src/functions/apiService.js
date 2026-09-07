@@ -1,30 +1,38 @@
 // src/functions/apiService.js
-const API_URL = "https://nku8zd8ok9.execute-api.us-east-1.amazonaws.com/desarrollo1/api/usuarios";
-const API_PRODUCTOS_URL = "https://peq4cfx9b1.execute-api.us-east-1.amazonaws.com/desarrolloprocarr/api/v1/productos";
-const API_CARRITO_URL = 'https://bhpifynk8i.execute-api.us-east-1.amazonaws.com/desarrollocarrito/api/v1/carrito';
 
-// Función para intentar el login en tu backend
+// 1. URL Base de tu API Gateway del BFF en AWS
+const BFF_BASE_URL = "https://ubu9hwv4t3.execute-api.us-east-1.amazonaws.com/desarrollobff/api/v1/bff";
+
+// 2. Rutas específicas basadas en tus controladores del BFF
+const API_USUARIOS_URL = `${BFF_BASE_URL}/usuarios`;
+const API_CARRITO_URL = `${BFF_BASE_URL}/carritos`;
+const API_PRODUCTOS_URL = `${BFF_BASE_URL}/productos`; // Ver nota abajo
+
+// --- USUARIOS Y LOGIN ---
+
 export const loginBackend = async (correo, token) => {
-    return await fetch(`${API_URL}/login`, {
+    return await fetch(`${API_USUARIOS_URL}/login`, { // Coincide con @PostMapping("/login")
         method: 'POST',
         headers: { 
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}` // <- AÑADIDO
+            'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ correo })
     });
 };
 
 export const registrarUsuario = async (usuarioData, token) => {
-    return await fetch(API_URL, {
+    return await fetch(API_USUARIOS_URL, { // Coincide con @PostMapping
         method: 'POST',
         headers: { 
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}` // <- AÑADIDO
+            'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(usuarioData)
     });
 };
+
+// --- PRODUCTOS ---
 
 export const getProductos = async (token) => {
     return await fetch(API_PRODUCTOS_URL, {
@@ -46,9 +54,10 @@ export const getProductoById = async (id, token) => {
     });
 };
 
-// Obtener el carrito actual
+// --- CARRITO ---
+
 export const getCarrito = async (token) => {
-    return await fetch(API_CARRITO_URL, {
+    return await fetch(API_CARRITO_URL, { // Coincide con @GetMapping
         method: 'GET',
         headers: { 
             'Content-Type': 'application/json',
@@ -57,22 +66,19 @@ export const getCarrito = async (token) => {
     });
 };
 
-// Agregar un item al carrito
 export const agregarItemCarrito = async (productoId, cantidad, precioUnitario, token) => {
-    return await fetch(`${API_CARRITO_URL}/items`, {
+    return await fetch(`${API_CARRITO_URL}/items`, { // Coincide con @PostMapping("/items")
         method: 'POST',
         headers: { 
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}` 
         },
-        // Añadimos precioUnitario al cuerpo de la petición
         body: JSON.stringify({ productoId, cantidad, precioUnitario }) 
     });
 };
 
-// Vaciar todo el carrito
-export const vaciarCarritoBackend = async (token) => {
-    return await fetch(API_CARRITO_URL, {
+export const eliminarItemCarrito = async (productoId, token) => {
+    return await fetch(`${API_CARRITO_URL}/items/${productoId}`, { // Coincide con @DeleteMapping("/items/{productoId}")
         method: 'DELETE',
         headers: { 
             'Authorization': `Bearer ${token}` 
@@ -80,8 +86,8 @@ export const vaciarCarritoBackend = async (token) => {
     });
 };
 
-export const eliminarItemCarrito = async (productoId, token) => {
-    return await fetch(`${API_CARRITO_URL}/items/${productoId}`, {
+export const vaciarCarritoBackend = async (token) => {
+    return await fetch(API_CARRITO_URL, { // Coincide con @DeleteMapping
         method: 'DELETE',
         headers: { 
             'Authorization': `Bearer ${token}` 
