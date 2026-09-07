@@ -24,15 +24,15 @@
 /* El Banner superior (Aquí puedes poner tu imagen) */
 .profile-card__banner {
     height: 180px;
-    /* Opción A: Patrón oscuro estilo gaming/tech */
+    /* Opción A: Patrón oscuro estilo gaming/tech 
     background-color: #1a1525;
     background-image: repeating-linear-gradient(45deg, #1a1525 25%, #2a223a 25%, #2a223a 50%, #1a1525 50%, #1a1525 75%, #2a223a 75%, #2a223a 100%);
-    background-size: 40px 40px;
+    background-size: 40px 40px;*/
     
     /* Opción B: Tu propia imagen de portada (descomenta esto) */
-    /* background-image: url('../../assets/banner-perfil.jpg'); */
-    /* background-size: cover; */
-    /* background-position: center; */
+    background-image: url('../../assets/FondoPagPerfil.png'); 
+    background-size: cover; 
+    background-position: center; 
     
     position: relative;
 }
