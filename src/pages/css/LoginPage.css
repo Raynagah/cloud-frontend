@@ -4,10 +4,19 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    /* Un degradado moderno y atractivo para Anime/Pop */
-    background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
     padding: 20px;
     font-family: 'Poppins', 'Nunito', Arial, sans-serif;
+    
+    /* --- OPCIÓN A: Patrón CSS estilo Cómic/Pop Art (Activo ahora mismo) --- */
+    background-color: #f4f0fa; /* Fondo morado muy clarito */
+    background-image: radial-gradient(#d5b8ff 2px, transparent 2px);
+    background-size: 30px 30px; 
+    
+    /* --- OPCIÓN B: Usar una imagen real (Descomenta esto cuando tengas tu imagen) --- */
+    /* background-image: url('../../assets/fondo-funkos.jpg'); */
+    /* background-size: cover; */
+    /* background-position: center; */
+    /* background-repeat: no-repeat; */
 }
 
 /* Tarjeta de login responsiva */

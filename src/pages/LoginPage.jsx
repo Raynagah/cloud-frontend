@@ -56,7 +56,7 @@ export function LoginPage() {
     return (
         <div className="login-page__wrapper">
             <div className="login-page__card">
-                <h1 className="login-page__title">Bienvenido a <span>TiendaGeek</span></h1>
+                <h1 className="login-page__title">Bienvenido a <span>Pedidos360</span></h1>
                 <p className="login-page__subtitle">
                     Tu portal exclusivo de Funko Pops, peluches y artículos de Anime. Inicia sesión para empezar tu colección.
                 </p>
