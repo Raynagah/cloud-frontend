@@ -6,82 +6,77 @@
     width: 100%;
 }
 
-/* Cabecera superior (Título y botón de volver) */
+/* Cabecera superior */
 .cart-page__header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
+    margin-bottom: 25px;
     flex-wrap: wrap;
     gap: 15px;
 }
 
 .cart-page__title {
-    font-size: 2.2rem;
+    font-size: 2rem;
     color: #1a1525;
-    font-weight: 900;
+    font-weight: 800;
     margin: 0;
 }
 
-/* Estado Vacío */
-.cart-page__empty {
-    text-align: center;
-    padding: 80px 20px;
-    background-color: #ffffff;
-    border-radius: 16px;
-    box-shadow: 0 8px 30px rgba(122, 40, 203, 0.08);
-    border: 2px dashed #e0e0e0;
-}
-
-.cart-page__empty h3 {
-    color: #1a1525;
-    font-size: 1.8rem;
-    margin-bottom: 10px;
-}
-
-/* Tarjeta principal que envuelve la lista */
+/* Tarjeta principal */
 .cart-page__content {
     background-color: #ffffff;
-    border-radius: 16px;
-    box-shadow: 0 8px 30px rgba(122, 40, 203, 0.08);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(122, 40, 203, 0.05);
     overflow: hidden;
     border: 1px solid #f0f0f0;
 }
 
-/* Títulos de las columnas (Solo visibles en PC) */
-.cart-page__list-header {
+/* --- GRID DE LA TABLA --- */
+/* Definimos la estructura de columnas para el header y los items */
+.cart-page__list-header, 
+.cart-page__item {
     display: grid;
-    grid-template-columns: 3fr 1fr 1fr 1fr auto;
+    grid-template-columns: 3fr 1fr 1fr 1fr 1fr; /* Proporciones ajustadas */
+    gap: 15px;
+    align-items: center;
+}
+
+/* Header (Títulos) */
+.cart-page__list-header {
     padding: 15px 30px;
     background-color: #1a1525;
     color: #ffffff;
-    font-weight: 700;
+    font-weight: 600;
     font-size: 0.85rem;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
 }
 
-/* Fila de cada producto */
+/* Filas de productos */
 .cart-page__item {
-    display: grid;
-    grid-template-columns: 3fr 1fr 1fr 1fr auto;
-    padding: 25px 30px;
+    padding: 20px 30px;
     border-bottom: 1px solid #f0f0f0;
-    align-items: center;
-    gap: 15px;
     transition: background-color 0.2s ease;
 }
 
 .cart-page__item:hover {
-    background-color: #fcfbfe;
+    background-color: #f8f6fb;
 }
 
-/* Textos internos de la fila */
+/* --- ALINEACIONES ESPECÍFICAS DE COLUMNAS --- */
+.col-product  { text-align: left; }
+.col-price    { text-align: center; }
+.col-qty      { text-align: center; }
+.col-subtotal { text-align: center; }
+.col-action   { text-align: right; } /* Botón de acción a la derecha */
+
+/* Textos internos */
 .cart-item__title {
-    font-weight: 800;
+    font-weight: 700;
     color: #2b2b2b;
-    margin: 0 0 5px 0;
-    font-size: 1.1rem;
+    margin: 0 0 4px 0;
+    font-size: 1.05rem;
 }
 
 .cart-item__id {
@@ -92,69 +87,87 @@
 
 .cart-item__price, 
 .cart-item__qty {
-    font-size: 1rem;
-    color: #555;
-    font-weight: 600;
+    font-size: 0.95rem;
+    color: #4a4a4a;
 }
 
 .cart-item__subtotal {
-    font-weight: 800;
-    color: #7a28cb; /* Morado para resaltar el subtotal */
-    font-size: 1.1rem;
+    font-weight: 700;
+    color: #7a28cb;
+    font-size: 1.05rem;
 }
 
-/* Resumen final (Total y botones de pago) */
+/* --- RESUMEN FINAL --- */
 .cart-page__summary {
     display: flex;
     justify-content: space-between;
-    align-items: flex-end;
-    padding: 30px;
-    background-color: #f8f9fa;
-    border-top: 2px solid #ebebeb;
+    align-items: center; /* Alineado al centro para equilibrar */
+    padding: 25px 30px;
+    background-color: #faf9fc;
+    border-top: 1px solid #ebebeb;
 }
 
 .cart-page__total-box {
     text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
 }
 
 .cart-page__total-label {
-    font-size: 1rem;
+    font-size: 0.9rem;
     color: #6c757d;
     margin-bottom: 5px;
     text-transform: uppercase;
-    font-weight: 700;
+    font-weight: 600;
+    letter-spacing: 0.5px;
 }
 
 .cart-page__total-value {
-    font-size: 2.8rem;
-    font-weight: 900;
+    font-size: 2.2rem; /* Reducido de 2.8rem para quitar lo tosco */
+    font-weight: 800;
     color: #1a1525;
-    margin: 0 0 20px 0;
-    line-height: 1;
+    margin: 0 0 15px 0;
 }
 
-/* --- RESPONSIVE DESIGN PARA CELULARES --- */
+/* Estado Vacío */
+.cart-page__empty {
+    text-align: center;
+    padding: 60px 20px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+    border: 2px dashed #ebebeb;
+}
+
+/* --- RESPONSIVE --- */
 @media (max-width: 768px) {
-    .cart-page__list-header {
-        display: none; /* Ocultamos los títulos de las columnas */
-    }
+    .cart-page__list-header { display: none; }
+    
+    .cart-page__list-header, 
     .cart-page__item {
-        grid-template-columns: 1fr; /* Todo en una sola columna */
+        grid-template-columns: 1fr;
         text-align: center;
         gap: 10px;
-        padding: 20px;
     }
-    .cart-item__qty::before {
-        content: "Cantidad: "; /* Agregamos label falso en móvil */
+    
+    .col-product, .col-price, .col-qty, .col-subtotal, .col-action {
+        text-align: center;
+    }
+    
+    .col-qty::before {
+        content: "Cantidad: ";
         color: #888;
+        font-size: 0.9rem;
     }
+
     .cart-page__summary {
         flex-direction: column-reverse;
-        align-items: stretch;
-        gap: 25px;
-        text-align: center;
+        gap: 20px;
     }
+    
     .cart-page__total-box {
-        text-align: center;
+        align-items: center;
+        width: 100%;
     }
 }

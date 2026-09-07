@@ -3,6 +3,12 @@
     max-width: 700px;
     margin: 0 auto;
     width: 100%;
+    /* Opción B: Tu propia imagen de portada (descomenta esto) */
+    background-image: url('../../assets/FondoPagPerfil.png'); 
+    background-size: cover; 
+    background-position: center; 
+    
+    position: relative;
 }
 
 /* La tarjeta principal del perfil */
@@ -30,7 +36,7 @@
     background-size: 40px 40px;*/
     
     /* Opción B: Tu propia imagen de portada (descomenta esto) */
-    background-image: url('../../assets/FondoPagPerfil.png'); 
+    background-image: url('../../assets/BannerPagPerfil.png'); 
     background-size: cover; 
     background-position: center; 
     
