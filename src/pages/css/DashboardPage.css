@@ -1,0 +1,32 @@
+.dashboard__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #e1e5eb;
+    padding-bottom: 15px;
+}
+
+.dashboard__title {
+    font-size: 2rem;
+    color: #1a1525;
+    margin: 0;
+    font-weight: 800;
+}
+
+.dashboard__loading,
+.dashboard__error {
+    text-align: center;
+    padding: 50px;
+    font-size: 1.2rem;
+    color: #7a28cb;
+    font-weight: 600;
+}
+
+/* El sistema de grilla que hace la magia responsiva */
+.dashboard__grid {
+    display: grid;
+    /* Ajusta automáticamente las columnas. Mínimo 260px, máximo 1 fracción */
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 25px;
+}

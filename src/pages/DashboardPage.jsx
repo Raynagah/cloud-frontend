@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getProductos } from '../functions/apiService';
-import { ProductoCard } from '../molecules/ProductoCard'; // <- Importamos la molécula
+import { ProductoCard } from '../components/molecules/ProductoCard';
+import './css/DashboardPage.css';
 
 export function DashboardPage() {
     const backendDataStr = localStorage.getItem('backendData');
@@ -30,14 +31,18 @@ export function DashboardPage() {
         }
     };
 
-    if (!backendData) return <p>Sesión inválida.</p>;
+    if (!backendData) return <p className="dashboard__error">Sesión inválida.</p>;
 
     return (
         <div>
-            <h2>Catálogo de Productos 🛒</h2>
-            {cargando ? <p>Cargando productos...</p> : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px', marginTop: '20px' }}>
-                    {/* Renderizamos las moléculas */}
+            <div className="dashboard__header">
+                <h1 className="dashboard__title">Catálogo Coleccionable 👾</h1>
+            </div>
+
+            {cargando ? (
+                <p className="dashboard__loading">Cargando tu próximo tesoro... ⏳</p>
+            ) : (
+                <div className="dashboard__grid">
                     {productos.map(prod => (
                         <ProductoCard 
                             key={prod.id} 
