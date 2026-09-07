@@ -1,18 +1,24 @@
 /* Contenedor para centrar el perfil en la pantalla */
 .profile-page__wrapper {
-    max-width: 700px;
-    margin: 0 auto;
     width: 100%;
-    /* Opción B: Tu propia imagen de portada (descomenta esto) */
+    min-height: 100vh; /* Ocupa toda la altura de la ventana */
+    
     background-image: url('../../assets/FondoPagPerfil.png'); 
     background-size: cover; 
     background-position: center; 
+    background-attachment: fixed; /* Opcional: el fondo se queda quieto al hacer scroll */
     
-    position: relative;
+    /* Centramos la tarjeta en medio de toda esta pantalla */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px; 
 }
 
-/* La tarjeta principal del perfil */
+/* 2. LA TARJETA DEL PERFIL */
 .profile-card {
+    max-width: 700px; /* Movimos el límite de ancho aquí */
+    width: 100%;
     background-color: #ffffff;
     border-radius: 16px;
     box-shadow: 0 8px 24px rgba(122, 40, 203, 0.1);
@@ -27,18 +33,21 @@
     position: relative; /* Para que el botoncito se posicione relativo a este contenedor */
 }
 
-/* El Banner superior (Aquí puedes poner tu imagen) */
+/* 3. EL BANNER DE SAITAMA */
 .profile-card__banner {
     height: 180px;
-    /* Opción A: Patrón oscuro estilo gaming/tech 
-    background-color: #1a1525;
-    background-image: repeating-linear-gradient(45deg, #1a1525 25%, #2a223a 25%, #2a223a 50%, #1a1525 50%, #1a1525 75%, #2a223a 75%, #2a223a 100%);
-    background-size: 40px 40px;*/
-    
-    /* Opción B: Tu propia imagen de portada (descomenta esto) */
     background-image: url('../../assets/BannerPagPerfil.png'); 
+    
+    /* Ajuste para que Saitama no salga cortado */
     background-size: cover; 
-    background-position: center; 
+    /* Cambiamos 'center' por 'center 20%' o 'top' para enfocar la parte superior de la imagen (la cabeza) */
+    background-position: center 25%; 
+    
+    /* Si la opción de arriba no te gusta, borra las dos líneas anteriores y usa esto:
+       background-size: contain;
+       background-repeat: no-repeat;
+       background-color: #000;  (Un color que combine por si quedan bordes vacíos a los lados)
+    */
     
     position: relative;
 }
