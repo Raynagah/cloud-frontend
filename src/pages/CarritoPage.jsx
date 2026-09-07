@@ -1,8 +1,8 @@
-// src/pages/CarritoPage.jsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCarrito, vaciarCarritoBackend, eliminarItemCarrito, getProductos } from '../functions/apiService';
 import { Button } from '../atoms/Button';
+import './css/CarritoPage.css'; // Importamos los estilos limpios
 
 export function CarritoPage() {
     const navigate = useNavigate();
@@ -22,7 +22,6 @@ export function CarritoPage() {
     const cargarCarritoYProductos = async (token) => {
         setCargando(true);
         try {
-            // Hacemos ambas peticiones en paralelo para que sea más rápido
             const [resCarrito, resProductos] = await Promise.all([
                 getCarrito(token),
                 getProductos(token)
@@ -30,7 +29,6 @@ export function CarritoPage() {
 
             if (resProductos.ok) {
                 const dataProductos = await resProductos.json();
-                // Creamos un diccionario { id: 'Nombre del producto' } para buscar rápido
                 const map = {};
                 dataProductos.forEach(prod => {
                     map[prod.id] = prod.nombre;
@@ -50,12 +48,11 @@ export function CarritoPage() {
     };
 
     const handleVaciarCarrito = async () => {
-        if (!window.confirm("¿Estás seguro de que deseas vaciar todo el carrito?")) return;
+        if (!window.confirm("¿Estás seguro de que deseas vaciar todo tu botín?")) return;
         
         try {
             const res = await vaciarCarritoBackend(backendData.token);
             if (res.ok || res.status === 204) {
-                // Actualizamos la vista localmente (el backend ya hizo su trabajo y devolvió los stocks)
                 setCarrito(prev => ({ ...prev, items: [], total: 0 }));
             } else {
                 alert("Hubo un problema al vaciar el carrito");
@@ -70,7 +67,7 @@ export function CarritoPage() {
             const res = await eliminarItemCarrito(productoId, backendData.token);
             if (res.ok) {
                 const carritoActualizado = await res.json();
-                setCarrito(carritoActualizado); // El backend nos devuelve el carrito recalculado
+                setCarrito(carritoActualizado);
             } else {
                 alert("No se pudo eliminar el ítem");
             }
@@ -79,89 +76,119 @@ export function CarritoPage() {
         }
     };
 
-    if (cargando) return <p style={{ padding: '20px' }}>Cargando tu carrito... 🛒</p>;
-    if (!carrito) return <p style={{ padding: '20px' }}>No se pudo cargar el carrito.</p>;
+    if (cargando) return (
+        <div className="cart-page" style={{textAlign: 'center', padding: '50px'}}>
+            <h2>Armando tu carrito... 🛒</h2>
+        </div>
+    );
+    
+    if (!carrito) return (
+        <div className="cart-page" style={{textAlign: 'center', padding: '50px'}}>
+            <h2 style={{color: '#ff1053'}}>No se pudo cargar tu carrito. 😿</h2>
+        </div>
+    );
 
     const hayItems = carrito.items && carrito.items.length > 0;
 
     return (
-        <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
+        <div className="cart-page">
             
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <h2 style={{ margin: 0 }}>Mi Carrito de Compras 🛍️</h2>
-                <Button variant="text" onClick={() => navigate('/dashboard')}>
-                    ← Seguir comprando
+            <div className="cart-page__header">
+                <h2 className="cart-page__title">Mi Carrito 🛍️</h2>
+                <Button 
+                    variant="text" 
+                    onClick={() => navigate('/dashboard')}
+                    style={{ color: '#7a28cb', fontWeight: 'bold' }}
+                >
+                    ← Seguir explorando
                 </Button>
             </div>
 
             {!hayItems ? (
-                <div style={{ textAlign: 'center', padding: '40px', backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-                    <h3 style={{ color: '#666' }}>Tu carrito está vacío</h3>
-                    <p style={{ color: '#999', marginBottom: '20px' }}>¡Explora nuestro catálogo y descubre productos increíbles!</p>
-                    <Button onClick={() => navigate('/dashboard')}>Ir a Productos</Button>
+                <div className="cart-page__empty">
+                    <h3>Tu inventario está vacío 📦</h3>
+                    <p style={{ color: '#888', marginBottom: '25px' }}>¡Explora nuestro catálogo y descubre Funkos increíbles!</p>
+                    <Button 
+                        onClick={() => navigate('/dashboard')}
+                        style={{ backgroundColor: '#7a28cb', color: 'white', padding: '12px 30px' }}
+                    >
+                        Ir a Productos
+                    </Button>
                 </div>
             ) : (
-                <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+                <div className="cart-page__content">
                     
+                    {/* Encabezados de tabla (Se ocultan en móvil) */}
+                    <div className="cart-page__list-header">
+                        <div>Producto</div>
+                        <div>Precio Un.</div>
+                        <div>Cantidad</div>
+                        <div>Subtotal</div>
+                        <div style={{textAlign: 'center'}}>Acción</div>
+                    </div>
+
                     {/* Lista de Items */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                    <div className="cart-page__list-body">
                         {carrito.items.map(item => (
-                            <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '15px', borderBottom: '1px solid #eee' }}>
-                                <div style={{ flex: 2 }}>
-                                    <h4 style={{ margin: '0 0 5px 0', fontSize: '16px' }}>
-                                        {diccionarioProductos[item.productoId] || `Producto #${item.productoId}`}
+                            <div key={item.id} className="cart-page__item">
+                                
+                                <div>
+                                    <h4 className="cart-item__title">
+                                        {diccionarioProductos[item.productoId] || `Objeto misterioso #${item.productoId}`}
                                     </h4>
-                                    <p style={{ margin: 0, fontSize: '13px', color: '#666' }}>
-                                        Precio unitario: ${item.precioUnitario}
-                                    </p>
+                                    <p className="cart-item__id">Ref: {item.productoId}</p>
                                 </div>
                                 
-                                <div style={{ flex: 1, textAlign: 'center' }}>
-                                    <span style={{ fontSize: '14px', fontWeight: 'bold' }}>Cant: {item.cantidad}</span>
+                                <div className="cart-item__price">
+                                    ${item.precioUnitario}
                                 </div>
                                 
-                                <div style={{ flex: 1, textAlign: 'right' }}>
-                                    <p style={{ margin: '0 0 5px 0', fontWeight: 'bold', color: '#107c10' }}>
-                                        Subtotal: ${item.subtotal}
-                                    </p>
+                                <div className="cart-item__qty">
+                                    {item.cantidad}
+                                </div>
+                                
+                                <div className="cart-item__subtotal">
+                                    ${item.subtotal}
+                                </div>
+                                
+                                <div style={{ textAlign: 'center' }}>
                                     <Button 
                                         variant="text" 
-                                        style={{ color: '#d83b01', padding: 0, fontSize: '13px' }} 
+                                        style={{ color: '#ff1053', padding: '5px 10px', fontSize: '0.9rem' }} 
                                         onClick={() => handleEliminarItem(item.productoId)}
+                                        title="Quitar del carrito"
                                     >
-                                        Quitar producto
+                                        ✖ Quitar
                                     </Button>
                                 </div>
+
                             </div>
                         ))}
                     </div>
 
-                    {/* Resumen Total y Acciones */}
-                    <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', paddingTop: '20px' }}>
+                    {/* Resumen Final */}
+                    <div className="cart-page__summary">
                         <Button 
                             variant="text" 
-                            style={{ color: '#d83b01', padding: '10px' }} 
+                            style={{ color: '#6c757d', padding: '10px 0', fontSize: '0.95rem' }} 
                             onClick={handleVaciarCarrito}
                         >
-                            🗑️ Vaciar todo el carrito
+                            🗑️ Vaciar todo el inventario
                         </Button>
 
-                        <div style={{ textAlign: 'right' }}>
-                            <p style={{ margin: '0 0 10px 0', fontSize: '16px', color: '#555' }}>
-                                Total a Pagar:
-                            </p>
-                            <h3 style={{ margin: 0, fontSize: '28px', color: '#107c10' }}>
-                                ${carrito.total}
-                            </h3>
+                        <div className="cart-page__total-box">
+                            <p className="cart-page__total-label">Total a Pagar</p>
+                            <h3 className="cart-page__total-value">${carrito.total}</h3>
+                            
                             <Button 
-                                variant="primary" 
-                                style={{ marginTop: '15px', padding: '12px 30px', fontSize: '16px' }}
-                                onClick={() => alert("Función de pago en construcción 🚀")}
+                                style={{ backgroundColor: '#1a1525', color: 'white', padding: '15px 40px', fontSize: '1.1rem', width: '100%' }}
+                                onClick={() => alert("¡Módulo de pago en construcción! 🚀")}
                             >
                                 Proceder al Pago
                             </Button>
                         </div>
                     </div>
+
                 </div>
             )}
         </div>

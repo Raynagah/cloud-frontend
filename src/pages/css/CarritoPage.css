@@ -1,0 +1,160 @@
+/* Contenedor principal */
+.cart-page {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+    width: 100%;
+}
+
+/* Cabecera superior (Título y botón de volver) */
+.cart-page__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.cart-page__title {
+    font-size: 2.2rem;
+    color: #1a1525;
+    font-weight: 900;
+    margin: 0;
+}
+
+/* Estado Vacío */
+.cart-page__empty {
+    text-align: center;
+    padding: 80px 20px;
+    background-color: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(122, 40, 203, 0.08);
+    border: 2px dashed #e0e0e0;
+}
+
+.cart-page__empty h3 {
+    color: #1a1525;
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+}
+
+/* Tarjeta principal que envuelve la lista */
+.cart-page__content {
+    background-color: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(122, 40, 203, 0.08);
+    overflow: hidden;
+    border: 1px solid #f0f0f0;
+}
+
+/* Títulos de las columnas (Solo visibles en PC) */
+.cart-page__list-header {
+    display: grid;
+    grid-template-columns: 3fr 1fr 1fr 1fr auto;
+    padding: 15px 30px;
+    background-color: #1a1525;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Fila de cada producto */
+.cart-page__item {
+    display: grid;
+    grid-template-columns: 3fr 1fr 1fr 1fr auto;
+    padding: 25px 30px;
+    border-bottom: 1px solid #f0f0f0;
+    align-items: center;
+    gap: 15px;
+    transition: background-color 0.2s ease;
+}
+
+.cart-page__item:hover {
+    background-color: #fcfbfe;
+}
+
+/* Textos internos de la fila */
+.cart-item__title {
+    font-weight: 800;
+    color: #2b2b2b;
+    margin: 0 0 5px 0;
+    font-size: 1.1rem;
+}
+
+.cart-item__id {
+    font-size: 0.8rem;
+    color: #888;
+    margin: 0;
+}
+
+.cart-item__price, 
+.cart-item__qty {
+    font-size: 1rem;
+    color: #555;
+    font-weight: 600;
+}
+
+.cart-item__subtotal {
+    font-weight: 800;
+    color: #7a28cb; /* Morado para resaltar el subtotal */
+    font-size: 1.1rem;
+}
+
+/* Resumen final (Total y botones de pago) */
+.cart-page__summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 30px;
+    background-color: #f8f9fa;
+    border-top: 2px solid #ebebeb;
+}
+
+.cart-page__total-box {
+    text-align: right;
+}
+
+.cart-page__total-label {
+    font-size: 1rem;
+    color: #6c757d;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.cart-page__total-value {
+    font-size: 2.8rem;
+    font-weight: 900;
+    color: #1a1525;
+    margin: 0 0 20px 0;
+    line-height: 1;
+}
+
+/* --- RESPONSIVE DESIGN PARA CELULARES --- */
+@media (max-width: 768px) {
+    .cart-page__list-header {
+        display: none; /* Ocultamos los títulos de las columnas */
+    }
+    .cart-page__item {
+        grid-template-columns: 1fr; /* Todo en una sola columna */
+        text-align: center;
+        gap: 10px;
+        padding: 20px;
+    }
+    .cart-item__qty::before {
+        content: "Cantidad: "; /* Agregamos label falso en móvil */
+        color: #888;
+    }
+    .cart-page__summary {
+        flex-direction: column-reverse;
+        align-items: stretch;
+        gap: 25px;
+        text-align: center;
+    }
+    .cart-page__total-box {
+        text-align: center;
+    }
+}
