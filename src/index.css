@@ -52,6 +52,7 @@
 
 body {
   margin: 0;
+  overflow-x: hidden; /* Oculta cualquier scroll horizontal indeseado a nivel global */
 }
 
 #root {
