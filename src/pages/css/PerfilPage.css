@@ -9,7 +9,7 @@
     margin-right: -50vw;
 
     /* TRUCO VERTICAL: Absorbe los espacios blancos superior e inferior */
-    margin-top: -40px;    /* Ajusta este número si el espacio de arriba es mayor o menor */
+    margin-top: -50px;    /* Ajusta este número si el espacio de arriba es mayor o menor */
     margin-bottom: -40px; /* Ajusta este número si el espacio de abajo es mayor o menor */
 
     /* Ajustamos el alto para no crear un scroll doble (100vh - alto aproximado de tu navbar) */
