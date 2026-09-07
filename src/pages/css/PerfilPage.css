@@ -1,6 +1,6 @@
 /* Contenedor para centrar el perfil en la pantalla */
 .profile-page__wrapper {
-    /* TRUCO: Forzar a que ocupe el ancho de la pantalla completa (100vw) ignorando al padre */
+    /* TRUCO HORIZONTAL */
     width: 100vw;
     position: relative;
     left: 50%;
@@ -8,20 +8,25 @@
     margin-left: -50vw;
     margin-right: -50vw;
 
-    min-height: 100vh; /* Ocupa toda la altura de la ventana */
+    /* TRUCO VERTICAL: Absorbe los espacios blancos superior e inferior */
+    margin-top: -30px;    /* Ajusta este número si el espacio de arriba es mayor o menor */
+    margin-bottom: -30px; /* Ajusta este número si el espacio de abajo es mayor o menor */
+
+    /* Ajustamos el alto para no crear un scroll doble (100vh - alto aproximado de tu navbar) */
+    min-height: calc(100vh - 60px); 
     
     background-image: url('../../assets/FondoPagPerfil.png'); 
     background-size: cover; 
     background-position: center; 
-    background-attachment: fixed; /* El fondo se queda quieto al hacer scroll */
+    background-attachment: fixed; 
     
-    /* Centramos la tarjeta en medio de toda esta pantalla */
+    /* Centramos la tarjeta */
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 40px 20px; 
     
-    /* Prevenir que el padding o el truco sumen ancho extra */
+    /* Subimos el padding top para compensar el margen negativo y que la tarjeta no quede muy pegada arriba */
+    padding: 60px 20px 40px 20px; 
     box-sizing: border-box;
 }
 
