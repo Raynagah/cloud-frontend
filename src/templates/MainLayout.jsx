@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navbar } from '../components/organisms/Navbar';
+import { Navbar } from '../organisms/Navbar';
 import { Outlet } from 'react-router-dom';
 import './css/MainLayout.css';
 

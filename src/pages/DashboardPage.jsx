@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getProductos } from '../functions/apiService';
-import { ProductoCard } from '../components/molecules/ProductoCard';
+import { ProductoCard } from '../molecules/ProductoCard';
 import './css/DashboardPage.css';
 
 export function DashboardPage() {
