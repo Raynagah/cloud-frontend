@@ -1,39 +1,36 @@
-// src/pages/LoginPage.jsx
 import React, { useEffect, useState } from 'react';
 import { useMsal } from "@azure/msal-react";
 import { useNavigate } from 'react-router-dom';
-import { LoginButton } from '../molecules/LoginButton';
+import { LoginButton } from '../components/molecules/LoginButton'; // Ajusta la ruta si es necesario
 import { loginBackend } from '../functions/apiService';
-import { loginRequest } from "../auth/AuthConfig"; // IMPORTANTE: importar tus scopes
+import { loginRequest } from "../auth/AuthConfig";
+import './LoginPage.css'; // Importamos el CSS exclusivo
 
 export function LoginPage() {
-    const { instance, accounts } = useMsal(); // Agregamos 'instance'
+    const { instance, accounts } = useMsal();
     const navigate = useNavigate();
     const [estado, setEstado] = useState('esperando');
 
     useEffect(() => {
         if (accounts.length > 0) {
-            verificarEnBackend(accounts[0]); // Pasamos la cuenta completa
+            verificarEnBackend(accounts[0]);
         }
     }, [accounts]);
 
     const verificarEnBackend = async (cuenta) => {
         setEstado('cargando');
         try {
-            // 1. OBTENEMOS EL TOKEN DE MICROSOFT SILENCIOSAMENTE
             const tokenResponse = await instance.acquireTokenSilent({
                 ...loginRequest,
                 account: cuenta
             });
-            const microsoftToken = tokenResponse.idToken; // o accessToken, dependiendo de cómo lo lee tu backend (normalmente idToken para Azure B2C/Entra ID)
+            const microsoftToken = tokenResponse.idToken;
 
-            // 2. HACEMOS LOGIN EN EL BACKEND ENVIANDO EL TOKEN
             const response = await loginBackend(cuenta.username, microsoftToken);
 
             if (response.ok) {
                 const usuarioBD = await response.json();
                 
-                // 3. ARMAMOS NUESTRO OBJETO CON EL TOKEN DE MICROSOFT
                 const backendData = {
                     usuario: usuarioBD,
                     token: microsoftToken
@@ -43,8 +40,6 @@ export function LoginPage() {
                 navigate('/dashboard');
             } 
             else if (response.status === 401) {
-                // Microsoft validó, pero no está en BD -> Registrar
-                // Guardamos temporalmente el token para la página de registro
                 localStorage.setItem('tempToken', microsoftToken); 
                 navigate('/registro');
             } 
@@ -59,21 +54,29 @@ export function LoginPage() {
     };
 
     return (
-        <div style={{ padding: '40px', fontFamily: 'Arial, sans-serif', maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
-            <h1>Bienvenido al Sistema</h1>
-            <p style={{ color: '#605e5c', marginBottom: '30px' }}>
-                Inicia sesión con tu cuenta corporativa para continuar.
-            </p>
+        <div className="login-page__wrapper">
+            <div className="login-page__card">
+                <h1 className="login-page__title">Bienvenido a <span>TiendaGeek</span></h1>
+                <p className="login-page__subtitle">
+                    Tu portal exclusivo de Funko Pops, peluches y artículos de Anime. Inicia sesión para empezar tu colección.
+                </p>
 
-            {estado === 'cargando' ? (
-                <p style={{ color: '#005a9e', fontWeight: 'bold' }}>Verificando credenciales... ⏳</p>
-            ) : estado === 'error' ? (
-                <p style={{ color: 'red' }}>Hubo un error de conexión. Intenta nuevamente.</p>
-            ) : (
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                    <LoginButton />
+                <div className="login-page__status-container">
+                    {estado === 'cargando' ? (
+                        <p className="login-page__loading">
+                            <span>Verificando credenciales...</span> ⏳
+                        </p>
+                    ) : estado === 'error' ? (
+                        <p className="login-page__error">
+                            Hubo un error de conexión. Intenta nuevamente.
+                        </p>
+                    ) : (
+                        <div className="login-page__action-area">
+                            <LoginButton />
+                        </div>
+                    )}
                 </div>
-            )}
+            </div>
         </div>
     );
 }

@@ -1,0 +1,83 @@
+/* Contenedor del usuario logueado */
+.login-btn__user-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+@media (min-width: 768px) {
+    .login-btn__user-container {
+        flex-direction: row;
+    }
+}
+
+.login-btn__greeting {
+    font-size: 1rem;
+    color: #4a4a4a;
+}
+
+.login-btn__greeting strong {
+    color: #7a28cb; /* Morado vibrante */
+}
+
+/* Botón de Cerrar Sesión */
+.login-btn__logout {
+    background-color: #ff1053; /* Fucsia/Rojo vibrante */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 6px rgba(255, 16, 83, 0.2);
+}
+
+.login-btn__logout:hover {
+    background-color: #d00b42;
+    transform: translateY(-2px);
+}
+
+/* Botón de Iniciar Sesión Microsoft */
+.login-btn__ms-login {
+    background-color: #ffffff;
+    color: #333333;
+    border: 2px solid #e1e5eb;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    max-width: 320px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.login-btn__ms-login:hover {
+    border-color: #7a28cb;
+    box-shadow: 0 4px 12px rgba(122, 40, 203, 0.15);
+    background-color: #faf8ff;
+}
+
+/* Icono simulado de Microsoft */
+.login-btn__ms-icon {
+    display: grid;
+    grid-template-columns: repeat(2, 8px);
+    gap: 2px;
+}
+
+.login-btn__ms-icon-box {
+    width: 8px;
+    height: 8px;
+}
+.login-btn__ms-icon-box--red { background-color: #f25022; }
+.login-btn__ms-icon-box--green { background-color: #7fba00; }
+.login-btn__ms-icon-box--blue { background-color: #00a4ef; }
+.login-btn__ms-icon-box--yellow { background-color: #ffb900; }

@@ -1,0 +1,90 @@
+/* Contenedor principal que ocupa toda la pantalla */
+.login-page__wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Un degradado moderno y atractivo para Anime/Pop */
+    background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+    padding: 20px;
+    font-family: 'Poppins', 'Nunito', Arial, sans-serif;
+}
+
+/* Tarjeta de login responsiva */
+.login-page__card {
+    background: #ffffff;
+    padding: 40px 30px;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+    width: 100%;
+    max-width: 450px;
+    text-align: center;
+    border-top: 5px solid #7a28cb; /* Detalle de color superior */
+}
+
+/* Títulos y textos */
+.login-page__title {
+    font-size: 1.8rem;
+    color: #2b2b2b;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.login-page__title span {
+    color: #7a28cb; /* Destacamos el nombre de la tienda */
+}
+
+.login-page__subtitle {
+    color: #6c757d;
+    font-size: 0.95rem;
+    margin-bottom: 35px;
+    line-height: 1.5;
+}
+
+/* Estados de carga y error */
+.login-page__status-container {
+    padding: 20px 0;
+}
+
+.login-page__loading {
+    color: #7a28cb;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+.login-page__error {
+    color: #ff1053;
+    background-color: #ffe6eb;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* Botonera */
+.login-page__action-area {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+/* Animación simple para el estado de carga */
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+}
+
+/* Responsivo para móviles muy pequeños */
+@media (max-width: 480px) {
+    .login-page__card {
+        padding: 30px 20px;
+    }
+    .login-page__title {
+        font-size: 1.5rem;
+    }
+}

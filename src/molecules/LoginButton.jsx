@@ -1,76 +1,45 @@
-// src/LoginButton.jsx
 import React from 'react';
 import { useMsal } from "@azure/msal-react";
-import { loginRequest } from "../auth/AuthConfig";
+import { loginRequest } from "../../auth/AuthConfig";
+import './css/LoginButton.css'; // Importamos el CSS exclusivo
 
 export function LoginButton() {
     const { instance, accounts } = useMsal();
 
     const handleLogin = () => {
-        // Flujo por redireccion: navega a la pagina de login de Microsoft y vuelve a la app.
-        // Es mas fiable que el popup (evita bloqueos del navegador y popups que no se cierran).
         instance.loginRedirect(loginRequest).catch(e => {
             console.error("Error en el inicio de sesión:", e);
         });
     };
 
     const handleLogout = () => {
-        // Cierra sesión
         instance.logoutRedirect().catch(e => {
             console.error("Error al cerrar sesión:", e);
         });
     };
 
-    // Si ya hay una cuenta activa, muestra el nombre y el botón de salir
     if (accounts.length > 0) {
         return (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                <span style={{ fontSize: '14px', color: '#333' }}>
+            <div className="login-btn__user-container">
+                <span className="login-btn__greeting">
                     Hola, <strong>{accounts[0].name}</strong>
                 </span>
-                <button 
-                    onClick={handleLogout}
-                    style={{
-                        backgroundColor: '#d83b01',
-                        color: 'white',
-                        border: 'none',
-                        padding: '8px 16px',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontWeight: '600'
-                    }}
-                >
+                <button onClick={handleLogout} className="login-btn__logout">
                     Cerrar Sesión
                 </button>
             </div>
         );
     }
 
-    // Si no ha iniciado sesión, muestra el botón oficial de Microsoft
     return (
-        <button 
-            onClick={handleLogin}
-            style={{
-                backgroundColor: '#2f2f2f',
-                color: 'white',
-                border: 'none',
-                padding: '10px 20px',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontWeight: '600',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px'
-            }}
-        >
-            {/* Pequeño icono simulado de Microsoft */}
-            <span style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 6px)', gap: '2px' }}>
-                <span style={{ backgroundColor: '#f25022', width: '6px', height: '6px' }}></span>
-                <span style={{ backgroundColor: '#7fba00', width: '6px', height: '6px' }}></span>
-                <span style={{ backgroundColor: '#00a4ef', width: '6px', height: '6px' }}></span>
-                <span style={{ backgroundColor: '#ffb900', width: '6px', height: '6px' }}></span>
+        <button onClick={handleLogin} className="login-btn__ms-login">
+            <span className="login-btn__ms-icon">
+                <span className="login-btn__ms-icon-box login-btn__ms-icon-box--red"></span>
+                <span className="login-btn__ms-icon-box login-btn__ms-icon-box--green"></span>
+                <span className="login-btn__ms-icon-box login-btn__ms-icon-box--blue"></span>
+                <span className="login-btn__ms-icon-box login-btn__ms-icon-box--yellow"></span>
             </span>
-            Iniciar sesión con Microsoft
+            Continuar con Microsoft
         </button>
     );
 }
