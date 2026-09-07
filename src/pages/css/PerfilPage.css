@@ -1,0 +1,119 @@
+/* Contenedor para centrar el perfil en la pantalla */
+.profile-page__wrapper {
+    max-width: 700px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* La tarjeta principal del perfil */
+.profile-card {
+    background-color: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(122, 40, 203, 0.1);
+    overflow: hidden;
+    border: 1px solid #f0f0f0;
+}
+
+/* El Banner superior (Aquí puedes poner tu imagen) */
+.profile-card__banner {
+    height: 180px;
+    /* Opción A: Patrón oscuro estilo gaming/tech */
+    background-color: #1a1525;
+    background-image: repeating-linear-gradient(45deg, #1a1525 25%, #2a223a 25%, #2a223a 50%, #1a1525 50%, #1a1525 75%, #2a223a 75%, #2a223a 100%);
+    background-size: 40px 40px;
+    
+    /* Opción B: Tu propia imagen de portada (descomenta esto) */
+    /* background-image: url('../../assets/banner-perfil.jpg'); */
+    /* background-size: cover; */
+    /* background-position: center; */
+    
+    position: relative;
+}
+
+/* Círculo superpuesto para el Avatar */
+.profile-card__avatar {
+    width: 120px;
+    height: 120px;
+    background-color: #d5b8ff;
+    border: 4px solid #ffffff;
+    border-radius: 50%;
+    position: absolute;
+    bottom: -60px; /* Lo saca un poco del banner */
+    left: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3.5rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* Contenedor de la información */
+.profile-card__content {
+    padding: 80px 40px 40px 40px; /* Padding top grande para compensar el avatar */
+}
+
+.profile-card__title {
+    font-size: 2rem;
+    color: #1a1525;
+    margin: 0 0 5px 0;
+    font-weight: 800;
+}
+
+.profile-card__subtitle {
+    color: #7a28cb;
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 30px 0;
+}
+
+/* Grilla para los datos del usuario */
+.profile-card__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+/* Cada bloque de información */
+.profile-item {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 10px;
+    border-left: 4px solid #7a28cb; /* Detalle de color al costado */
+    transition: transform 0.2s ease;
+}
+
+.profile-item:hover {
+    transform: translateX(5px);
+}
+
+.profile-item__label {
+    display: block;
+    font-size: 0.8rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.profile-item__value {
+    font-size: 1.1rem;
+    color: #2b2b2b;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* Adaptación para celulares */
+@media (max-width: 600px) {
+    .profile-card__avatar {
+        left: 50%;
+        transform: translateX(-50%); /* Centra el avatar en móvil */
+    }
+    .profile-card__content {
+        padding-top: 80px;
+        text-align: center;
+    }
+    .profile-item {
+        border-left: none;
+        border-bottom: 4px solid #7a28cb; /* Cambia el borde hacia abajo */
+    }
+}
