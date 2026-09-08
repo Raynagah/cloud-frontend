@@ -123,7 +123,7 @@ export function ProductoDetallePage() {
                     
                     <div className="product-detail__price-box">
                         <span className="product-detail__price">
-                            {formatarDinero(producto.precio)} {/* <-- Precio unitario */}
+                            {formatearDinero(producto.precio)} {/* <-- Precio unitario */}
                         </span>
                         <div className="product-detail__stock">
                             Disponibles: 
@@ -158,7 +158,7 @@ export function ProductoDetallePage() {
                         
                         {!agotado && (
                             <span className="product-detail__subtotal">
-                                (Subtotal: {formatarDinero(producto.precio * cantidad)}) {/* <-- Subtotal dinámico */}
+                                (Subtotal: {formatearDinero(producto.precio * cantidad)}) {/* <-- Subtotal dinámico */}
                             </span>
                         )}
                     </div>

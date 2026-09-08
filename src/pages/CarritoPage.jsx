@@ -140,7 +140,7 @@ export function CarritoPage() {
                                             Cantidad: <b>{item.cantidad}</b>
                                         </div>
                                         <div className="cart-item-price">
-                                            {formatarDinero(item.subtotal)} {/* <-- Subtotal del ítem */}
+                                            {formatearDinero(item.subtotal)} {/* <-- Subtotal del ítem */}
                                         </div>
                                     </div>
                                 </div>
@@ -161,7 +161,7 @@ export function CarritoPage() {
                                 
                                 <div className="summary-row">
                                     <span>Productos ({carrito.items.reduce((acc, item) => acc + item.cantidad, 0)})</span>
-                                    <span>{formatarDinero(carrito.total)}</span> {/* <-- Total parcial */}
+                                    <span>{formatearDinero(carrito.total)}</span> {/* <-- Total parcial */}
                                 </div>
                                 <div className="summary-row">
                                     <span>Envío</span>
@@ -172,7 +172,7 @@ export function CarritoPage() {
                                 
                                 <div className="summary-row total-row">
                                     <span>Total</span>
-                                    <span>{formatarDinero(carrito.total)}</span> {/* <-- Total final */}
+                                    <span>{formatearDinero(carrito.total)}</span> {/* <-- Total final */}
                                 </div>
                                 
                                 <Button 

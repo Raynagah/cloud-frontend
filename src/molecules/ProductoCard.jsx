@@ -23,7 +23,7 @@ export function ProductoCard({ producto, onVerDetalle }) {
                 
                 <div className="product-card__meta">
                     <span className="product-card__price">
-                        {formatarDinero(producto.precio)} {/* <-- Aplicado aquí */}
+                        {formatearDinero(producto.precio)} {/* <-- Aplicado aquí */}
                     </span>
                     <span className="product-card__stock">
                         Stock: {producto.stock}
