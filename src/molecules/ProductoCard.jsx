@@ -1,7 +1,7 @@
 // src/components/molecules/ProductoCard.jsx
 import React from 'react';
 import { Button } from '../atoms/Button';
-import { formatarDinero } from '../utils/formatCurrency'; 
+import { formatearDinero } from '../utils/formatCurrency'; 
 import './css/ProductoCard.css';
 
 export function ProductoCard({ producto, onVerDetalle }) {

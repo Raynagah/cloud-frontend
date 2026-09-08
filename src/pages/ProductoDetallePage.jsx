@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getProductoById, agregarItemCarrito } from '../functions/apiService';
 import { Button } from '../atoms/Button';
-import { formatarDinero } from '../utils/formatCurrency';
+import { formatearDinero } from '../utils/formatCurrency';
 import './css/ProductoDetallePage.css'; 
 
 export function ProductoDetallePage() {
