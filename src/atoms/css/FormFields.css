@@ -1,0 +1,32 @@
+/* Estilos compartidos para inputs y selects */
+.custom-field__wrapper {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    width: 100%;
+}
+
+.custom-field__label {
+    font-size: 0.85rem;
+    color: #4a4a4a;
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+.custom-field__input {
+    padding: 12px 15px;
+    border: 2px solid #e1e5eb;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    color: #333;
+    transition: all 0.3s ease;
+    background-color: #fafafa;
+}
+
+.custom-field__input:focus {
+    outline: none;
+    border-color: #7a28cb; /* Morado de la marca */
+    background-color: #ffffff;
+    box-shadow: 0 0 0 4px rgba(122, 40, 203, 0.1);
+}
