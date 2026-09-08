@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getProductoById, agregarItemCarrito } from '../functions/apiService';
 import { Button } from '../atoms/Button';
-import './css/ProductoDetallePage.css'; // Importamos los nuevos estilos
+import './css/ProductoDetallePage.css'; 
 
 export function ProductoDetallePage() {
     const { id } = useParams();
@@ -19,21 +19,22 @@ export function ProductoDetallePage() {
     const imagenPorDefecto = "https://via.placeholder.com/450x450/f4f0fa/7a28cb?text=Sin+Imagen";
 
     useEffect(() => {
-        if (backendData?.token) {
-            cargarProductoDetalle(backendData.token);
+        if (backendData) {
+            cargarProductoDetalle(); // 1. Ya no pasamos el token
         }
     }, [id]);
 
-    const cargarProductoDetalle = async (token) => {
+    const cargarProductoDetalle = async () => {
         try {
-            const res = await getProductoById(id, token);
-            if (res.ok) {
-                const data = await res.json();
-                setProducto(data);
-                setCantidad(data.stock > 0 ? 1 : 0);
-            }
+            // 2. Usamos Axios. Si falla (ej. 404 No encontrado), salta al catch
+            const res = await getProductoById(id);
+            
+            // 3. Axios ya procesó el JSON en res.data
+            setProducto(res.data);
+            setCantidad(res.data.stock > 0 ? 1 : 0);
+            
         } catch (err) {
-            console.error("Error:", err);
+            console.error("Error al cargar producto:", err);
         } finally {
             setCargando(false);
         }
@@ -48,29 +49,28 @@ export function ProductoDetallePage() {
     };
 
     const handleAgregarCarrito = async (redirigirAlCarrito) => {
-        if (!backendData?.token || cantidad <= 0) return;
+        // 4. Verificamos que el usuario esté logueado, pero ya no necesitamos sacar su token explícitamente
+        if (!backendData || cantidad <= 0) return;
 
         setProcesando(true);
         try {
-            const res = await agregarItemCarrito(
+            // 5. Quitamos el token de los parámetros. El interceptor lo inyecta por detrás
+            await agregarItemCarrito(
                 producto.id, 
                 cantidad, 
-                producto.precio, 
-                backendData.token
+                producto.precio
             );
 
-            if (res.ok) {
-                setProducto(prev => ({ ...prev, stock: prev.stock - cantidad }));
-                setCantidad(1); 
+            // 6. Si Axios no lanzó error, asumimos que fue exitoso (código 2xx)
+            setProducto(prev => ({ ...prev, stock: prev.stock - cantidad }));
+            setCantidad(1); 
 
-                if (redirigirAlCarrito) {
-                    navigate('/carrito'); 
-                } else {
-                    alert("¡Producto agregado al carrito con éxito!");
-                }
+            if (redirigirAlCarrito) {
+                navigate('/carrito'); 
             } else {
-                alert("Hubo un problema al agregar el producto al carrito.");
+                alert("¡Producto agregado al carrito con éxito!");
             }
+            
         } catch (error) {
             console.error("Error agregando al carrito:", error);
             alert("Error de conexión al agregar al carrito.");

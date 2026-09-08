@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useMsal } from "@azure/msal-react";
 import { useNavigate } from 'react-router-dom';
-import { LoginButton } from '../molecules/LoginButton'; // Ajusta la ruta si es necesario
+import { LoginButton } from '../molecules/LoginButton';
 import { loginBackend } from '../functions/apiService';
 import { loginRequest } from "../auth/AuthConfig";
-import './css/LoginPage.css'; // Importamos el CSS exclusivo
+import './css/LoginPage.css';
 
 export function LoginPage() {
     const { instance, accounts } = useMsal();
@@ -19,37 +19,40 @@ export function LoginPage() {
 
     const verificarEnBackend = async (cuenta) => {
         setEstado('cargando');
+        
+        // 1. Declaramos el token fuera del try para poder usarlo en el catch si da 401
+        let microsoftToken = null; 
+
         try {
             const tokenResponse = await instance.acquireTokenSilent({
                 ...loginRequest,
                 account: cuenta
             });
-            const microsoftToken = tokenResponse.idToken;
+            microsoftToken = tokenResponse.idToken;
 
+            // 2. Llamada a la API con Axios
             const response = await loginBackend(cuenta.username, microsoftToken);
 
-            if (response.ok) {
-                const usuarioBD = await response.json();
-                
-                const backendData = {
-                    usuario: usuarioBD,
-                    token: microsoftToken
-                };
+            // 3. Axios ya procesó el JSON en response.data, ya no usamos .json() ni comprobamos .ok
+            const usuarioBD = response.data;
+            
+            const backendData = {
+                usuario: usuarioBD,
+                token: microsoftToken
+            };
 
-                localStorage.setItem('backendData', JSON.stringify(backendData));
-                navigate('/dashboard');
-            } 
-            else if (response.status === 401) {
+            localStorage.setItem('backendData', JSON.stringify(backendData));
+            navigate('/dashboard');
+
+        } catch (error) {
+            // 4. Con Axios, un error 401 (Unauthorized) cae directamente aquí en el catch
+            if (error.response && error.response.status === 401) {
                 localStorage.setItem('tempToken', microsoftToken); 
                 navigate('/registro');
-            } 
-            else {
+            } else {
                 setEstado('error');
-                console.error("Error del servidor:", response.status);
+                console.error("Error del servidor o de red:", error);
             }
-        } catch (error) {
-            setEstado('error');
-            console.error("Error al obtener token de MS o de red:", error);
         }
     };
 

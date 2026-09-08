@@ -14,33 +14,35 @@ export function CarritoPage() {
     const [cargando, setCargando] = useState(true);
 
     useEffect(() => {
-        if (backendData?.token) {
-            cargarCarritoYProductos(backendData.token);
+        // Solo verificamos que el usuario exista para cargar, pero ya no pasamos el token
+        if (backendData) {
+            cargarCarritoYProductos();
+        } else {
+            setCargando(false);
         }
     }, []);
 
-    const cargarCarritoYProductos = async (token) => {
+    const cargarCarritoYProductos = async () => {
         setCargando(true);
         try {
+            // 1. Axios hace ambas peticiones. El interceptor pone el token.
             const [resCarrito, resProductos] = await Promise.all([
-                getCarrito(token),
-                getProductos(token)
+                getCarrito(),
+                getProductos()
             ]);
 
-            if (resProductos.ok) {
-                const dataProductos = await resProductos.json();
-                const map = {};
-                dataProductos.forEach(prod => {
-                    map[prod.id] = prod.nombre;
-                });
-                setDiccionarioProductos(map);
-            }
+            // 2. Si llegamos aquí, ambas respondieron 2xx. Los JSON ya están en .data
+            const dataProductos = resProductos.data;
+            const map = {};
+            dataProductos.forEach(prod => {
+                map[prod.id] = prod.nombre;
+            });
+            setDiccionarioProductos(map);
 
-            if (resCarrito.ok) {
-                const dataCarrito = await resCarrito.json();
-                setCarrito(dataCarrito);
-            }
+            setCarrito(resCarrito.data);
+            
         } catch (error) {
+            // Si CUALQUIERA de las dos peticiones falla (ej. 401, 500), cae directo aquí
             console.error("Error al cargar datos:", error);
         } finally {
             setCargando(false);
@@ -51,28 +53,27 @@ export function CarritoPage() {
         if (!window.confirm("¿Estás seguro de que deseas vaciar todo tu botín?")) return;
         
         try {
-            const res = await vaciarCarritoBackend(backendData.token);
-            if (res.ok || res.status === 204) {
-                setCarrito(prev => ({ ...prev, items: [], total: 0 }));
-            } else {
-                alert("Hubo un problema al vaciar el carrito");
-            }
+            // 3. Ya no pasamos el token
+            await vaciarCarritoBackend();
+            
+            // 4. Si no cayó en el catch, significa que se vació con éxito (200 o 204)
+            setCarrito(prev => ({ ...prev, items: [], total: 0 }));
+            
         } catch (error) {
             console.error("Error vaciando carrito:", error);
+            alert("Hubo un problema al vaciar el carrito");
         }
     };
 
     const handleEliminarItem = async (productoId) => {
         try {
-            const res = await eliminarItemCarrito(productoId, backendData.token);
-            if (res.ok) {
-                const carritoActualizado = await res.json();
-                setCarrito(carritoActualizado);
-            } else {
-                alert("No se pudo eliminar el ítem");
-            }
+            // 5. Mismo caso: interceptor pone el token, Axios parsea la respuesta.
+            const res = await eliminarItemCarrito(productoId);
+            setCarrito(res.data);
+            
         } catch (error) {
             console.error("Error eliminando ítem:", error);
+            alert("No se pudo eliminar el ítem");
         }
     };
 

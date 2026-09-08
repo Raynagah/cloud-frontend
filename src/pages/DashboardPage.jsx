@@ -1,3 +1,4 @@
+// src/pages/DashboardPage.jsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getProductos } from '../functions/apiService';
@@ -12,20 +13,18 @@ export function DashboardPage() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (backendData?.token) {
-            cargarProductos(backendData.token);
+        if (backendData) {
+            cargarProductos(); // Ya no pasamos el token por aquí
         }
     }, []);
 
-    const cargarProductos = async (token) => {
+    const cargarProductos = async () => {
         try {
-            const res = await getProductos(token);
-            if (res.ok) {
-                const data = await res.json();
-                setProductos(data);
-            }
+            // Usamos la nueva función limpia. Axios lanza error automáticamente si falla
+            const res = await getProductos(); 
+            setProductos(res.data); // Axios guarda la respuesta en .data (ya no se usa .json())
         } catch (error) {
-            console.error("Error de red", error);
+            console.error("Error al cargar productos", error);
         } finally {
             setCargando(false);
         }

@@ -40,27 +40,36 @@ export function RegistroPage() {
         };
 
         try {
-            const response = await registrarUsuario(nuevoUsuario, microsoftToken);
+            // 1. Llamada a la API con Axios (si falla, salta al catch)
+            await registrarUsuario(nuevoUsuario, microsoftToken);
             
-            if (response.ok || response.status === 201) {
-                const loginRes = await loginBackend(cuenta.username, microsoftToken);
-                
-                if (loginRes.ok) {
-                    const usuarioBD = await loginRes.json();
-                    localStorage.setItem('backendData', JSON.stringify({
-                        usuario: usuarioBD,
-                        token: microsoftToken
-                    }));
-                    localStorage.removeItem('tempToken');
-                    navigate('/dashboard');
-                }
-            } else {
-                const err = await response.text();
-                setMensajeError(`Error del servidor: ${err}`);
-                setEstado('error');
-            }
+            // 2. Si pasó la línea anterior, el registro fue código 2xx. Hacemos login automático.
+            const loginRes = await loginBackend(cuenta.username, microsoftToken);
+            
+            // 3. Axios guarda el JSON en .data (ya no usamos .json())
+            const usuarioBD = loginRes.data; 
+            
+            localStorage.setItem('backendData', JSON.stringify({
+                usuario: usuarioBD,
+                token: microsoftToken
+            }));
+            localStorage.removeItem('tempToken');
+            navigate('/dashboard');
+
         } catch (error) {
-            setMensajeError('Error de red al registrar.');
+            // 4. Manejo de errores simplificado con Axios
+            if (error.response) {
+                // El servidor respondió con un error (ej. 400 Bad Request, 500)
+                // Axios guarda el mensaje que envía tu backend en error.response.data
+                const errMessage = typeof error.response.data === 'string' 
+                    ? error.response.data 
+                    : JSON.stringify(error.response.data);
+                
+                setMensajeError(`Error del servidor: ${errMessage}`);
+            } else {
+                // El servidor no respondió (cayó) o no hay internet
+                setMensajeError('Error de red al registrar.');
+            }
             setEstado('error');
         }
     };

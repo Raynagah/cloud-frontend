@@ -1,96 +1,71 @@
 // src/functions/apiService.js
+import axios from 'axios';
 
-// 1. URL Base de tu API Gateway del BFF en AWS
+// 1. URL Base de tu API Gateway
 const BFF_BASE_URL = "https://ubu9hwv4t3.execute-api.us-east-1.amazonaws.com/desarrollobff/api/v1/bff";
 
-// 2. Rutas específicas basadas en tus controladores del BFF
-const API_USUARIOS_URL = `${BFF_BASE_URL}/usuarios`;
-const API_CARRITO_URL = `${BFF_BASE_URL}/carritos`;
-const API_PRODUCTOS_URL = `${BFF_BASE_URL}/productos`; // Ver nota abajo
+// 2. Crear la instancia global de Axios
+const apiClient = axios.create({
+    baseURL: BFF_BASE_URL,
+    headers: {
+        'Content-Type': 'application/json'
+    }
+});
 
-// --- USUARIOS Y LOGIN ---
+// 3. EL INTERCEPTOR MÁGICO 🪄
+apiClient.interceptors.request.use(
+    (config) => {
+        // Si la petición ya trae un token (ej. Login/Registro), lo respetamos
+        if (!config.headers.Authorization) {
+            // Buscamos el token en localStorage
+            const backendDataStr = localStorage.getItem('backendData');
+            if (backendDataStr) {
+                const { token } = JSON.parse(backendDataStr);
+                if (token) {
+                    config.headers.Authorization = `Bearer ${token}`; // Sello automático
+                }
+            }
+        }
+        return config;
+    },
+    (error) => Promise.reject(error)
+);
 
+// --- USUARIOS Y LOGIN (Requieren token manual porque aún no se ha guardado en localStorage) ---
 export const loginBackend = async (correo, token) => {
-    return await fetch(`${API_USUARIOS_URL}/login`, { // Coincide con @PostMapping("/login")
-        method: 'POST',
-        headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ correo })
+    return await apiClient.post('/usuarios/login', { correo }, {
+        headers: { 'Authorization': `Bearer ${token}` }
     });
 };
 
 export const registrarUsuario = async (usuarioData, token) => {
-    return await fetch(API_USUARIOS_URL, { // Coincide con @PostMapping
-        method: 'POST',
-        headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(usuarioData)
+    return await apiClient.post('/usuarios', usuarioData, {
+        headers: { 'Authorization': `Bearer ${token}` }
     });
 };
 
-// --- PRODUCTOS ---
-
-export const getProductos = async (token) => {
-    return await fetch(API_PRODUCTOS_URL, {
-        method: 'GET',
-        headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}` 
-        }
-    });
+// --- PRODUCTOS (¡Ya no necesitan el parámetro token!) ---
+export const getProductos = async () => {
+    return await apiClient.get('/productos');
 };
 
-export const getProductoById = async (id, token) => {
-    return await fetch(`${API_PRODUCTOS_URL}/${id}`, {
-        method: 'GET',
-        headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}` 
-        }
-    });
+export const getProductoById = async (id) => {
+    return await apiClient.get(`/productos/${id}`);
 };
 
-// --- CARRITO ---
-
-export const getCarrito = async (token) => {
-    return await fetch(API_CARRITO_URL, { // Coincide con @GetMapping
-        method: 'GET',
-        headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}` 
-        }
-    });
+// --- CARRITO (¡Tampoco necesitan el token!) ---
+export const getCarrito = async () => {
+    return await apiClient.get('/carritos');
 };
 
-export const agregarItemCarrito = async (productoId, cantidad, precioUnitario, token) => {
-    return await fetch(`${API_CARRITO_URL}/items`, { // Coincide con @PostMapping("/items")
-        method: 'POST',
-        headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}` 
-        },
-        body: JSON.stringify({ productoId, cantidad, precioUnitario }) 
-    });
+export const agregarItemCarrito = async (productoId, cantidad, precioUnitario) => {
+    return await apiClient.post('/carritos/items', { productoId, cantidad, precioUnitario });
 };
 
-export const eliminarItemCarrito = async (productoId, token) => {
-    return await fetch(`${API_CARRITO_URL}/items/${productoId}`, { // Coincide con @DeleteMapping("/items/{productoId}")
-        method: 'DELETE',
-        headers: { 
-            'Authorization': `Bearer ${token}` 
-        }
-    });
+export const eliminarItemCarrito = async (productoId) => {
+    return await apiClient.delete(`/carritos/items/${productoId}`);
 };
 
-export const vaciarCarritoBackend = async (token) => {
-    return await fetch(API_CARRITO_URL, { // Coincide con @DeleteMapping
-        method: 'DELETE',
-        headers: { 
-            'Authorization': `Bearer ${token}` 
-        }
-    });
+export const vaciarCarritoBackend = async () => {
+    return await apiClient.delete('/carritos');
 };
