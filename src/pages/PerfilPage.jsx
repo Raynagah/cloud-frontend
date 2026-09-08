@@ -86,7 +86,7 @@ export function PerfilPage() {
                         </div>
 
                         <div className="profile-item">
-                            <span className="profile-item__label">Ocupación / Gremio</span>
+                            <span className="profile-item__label">Ocupación / Clase</span>
                             <p className="profile-item__value">{usuario.ocupacion}</p>
                         </div>
 
