@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCarrito, vaciarCarritoBackend, eliminarItemCarrito, getProductos } from '../functions/apiService';
 import { Button } from '../atoms/Button';
+import { formatarDinero } from '../utils/formatCurrency';
 import './css/CarritoPage.css'; 
 
 export function CarritoPage() {
@@ -139,7 +140,7 @@ export function CarritoPage() {
                                             Cantidad: <b>{item.cantidad}</b>
                                         </div>
                                         <div className="cart-item-price">
-                                            ${item.subtotal}
+                                            {formatarDinero(item.subtotal)} {/* <-- Subtotal del ítem */}
                                         </div>
                                     </div>
                                 </div>
@@ -160,7 +161,7 @@ export function CarritoPage() {
                                 
                                 <div className="summary-row">
                                     <span>Productos ({carrito.items.reduce((acc, item) => acc + item.cantidad, 0)})</span>
-                                    <span>${carrito.total}</span>
+                                    <span>{formatarDinero(carrito.total)}</span> {/* <-- Total parcial */}
                                 </div>
                                 <div className="summary-row">
                                     <span>Envío</span>
@@ -171,7 +172,7 @@ export function CarritoPage() {
                                 
                                 <div className="summary-row total-row">
                                     <span>Total</span>
-                                    <span>${carrito.total}</span>
+                                    <span>{formatarDinero(carrito.total)}</span> {/* <-- Total final */}
                                 </div>
                                 
                                 <Button 

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getProductoById, agregarItemCarrito } from '../functions/apiService';
 import { Button } from '../atoms/Button';
+import { formatarDinero } from '../utils/formatCurrency';
 import './css/ProductoDetallePage.css'; 
 
 export function ProductoDetallePage() {
@@ -121,7 +122,9 @@ export function ProductoDetallePage() {
                     <p className="product-detail__description">{producto.descripcion}</p>
                     
                     <div className="product-detail__price-box">
-                        <span className="product-detail__price">${producto.precio}</span>
+                        <span className="product-detail__price">
+                            {formatarDinero(producto.precio)} {/* <-- Precio unitario */}
+                        </span>
                         <div className="product-detail__stock">
                             Disponibles: 
                             <strong className={agotado ? "out-of-stock" : ""}>
@@ -155,7 +158,7 @@ export function ProductoDetallePage() {
                         
                         {!agotado && (
                             <span className="product-detail__subtotal">
-                                (Subtotal: ${ (producto.precio * cantidad).toFixed(2) })
+                                (Subtotal: {formatarDinero(producto.precio * cantidad)}) {/* <-- Subtotal dinámico */}
                             </span>
                         )}
                     </div>

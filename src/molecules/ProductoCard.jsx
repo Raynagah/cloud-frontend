@@ -1,9 +1,10 @@
+// src/components/molecules/ProductoCard.jsx
 import React from 'react';
 import { Button } from '../atoms/Button';
+import { formatarDinero } from '../../utils/formatCurrency'; // <-- Importar función
 import './css/ProductoCard.css';
 
 export function ProductoCard({ producto, onVerDetalle }) {
-    // Si el backend no trae imagen, usamos un placeholder genérico de Funko/Anime
     const imagenPorDefecto = "https://via.placeholder.com/250x250/f4f0fa/7a28cb?text=Sin+Imagen";
     
     return (
@@ -18,14 +19,11 @@ export function ProductoCard({ producto, onVerDetalle }) {
             
             <div className="product-card__content">
                 <h3 className="product-card__title">{producto.nombre}</h3>
-                
-                <p className="product-card__description">
-                    {producto.descripcion}
-                </p>
+                <p className="product-card__description">{producto.descripcion}</p>
                 
                 <div className="product-card__meta">
                     <span className="product-card__price">
-                        ${producto.precio}
+                        {formatarDinero(producto.precio)} {/* <-- Aplicado aquí */}
                     </span>
                     <span className="product-card__stock">
                         Stock: {producto.stock}
@@ -41,4 +39,4 @@ export function ProductoCard({ producto, onVerDetalle }) {
             </div>
         </div>
     );
-}
+}   
