@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getCarrito, vaciarCarritoBackend, eliminarItemCarrito, getProductos } from '../functions/apiService';
+import { getCarrito, vaciarCarritoBackend, eliminarItemCarrito, getProductos, crearOrden } from '../functions/apiService';
 import { Button } from '../atoms/Button';
 import { formatearDinero } from '../utils/formatCurrency';
 import './css/CarritoPage.css'; 
@@ -13,9 +13,9 @@ export function CarritoPage() {
     const [carrito, setCarrito] = useState(null);
     const [diccionarioProductos, setDiccionarioProductos] = useState({});
     const [cargando, setCargando] = useState(true);
+    const [procesandoCompra, setProcesandoCompra] = useState(false);
 
     useEffect(() => {
-        // Solo verificamos que el usuario exista para cargar, pero ya no pasamos el token
         if (backendData) {
             cargarCarritoYProductos();
         } else {
@@ -26,24 +26,20 @@ export function CarritoPage() {
     const cargarCarritoYProductos = async () => {
         setCargando(true);
         try {
-            // 1. Axios hace ambas peticiones. El interceptor pone el token.
             const [resCarrito, resProductos] = await Promise.all([
                 getCarrito(),
                 getProductos()
             ]);
 
-            // 2. Si llegamos aquí, ambas respondieron 2xx. Los JSON ya están en .data
             const dataProductos = resProductos.data;
             const map = {};
             dataProductos.forEach(prod => {
                 map[prod.id] = prod.nombre;
             });
             setDiccionarioProductos(map);
-
             setCarrito(resCarrito.data);
             
         } catch (error) {
-            // Si CUALQUIERA de las dos peticiones falla (ej. 401, 500), cae directo aquí
             console.error("Error al cargar datos:", error);
         } finally {
             setCargando(false);
@@ -54,12 +50,8 @@ export function CarritoPage() {
         if (!window.confirm("¿Estás seguro de que deseas vaciar todo tu botín?")) return;
         
         try {
-            // 3. Ya no pasamos el token
             await vaciarCarritoBackend();
-            
-            // 4. Si no cayó en el catch, significa que se vació con éxito (200 o 204)
             setCarrito(prev => ({ ...prev, items: [], total: 0 }));
-            
         } catch (error) {
             console.error("Error vaciando carrito:", error);
             alert("Hubo un problema al vaciar el carrito");
@@ -68,13 +60,40 @@ export function CarritoPage() {
 
     const handleEliminarItem = async (productoId) => {
         try {
-            // 5. Mismo caso: interceptor pone el token, Axios parsea la respuesta.
             const res = await eliminarItemCarrito(productoId);
             setCarrito(res.data);
-            
         } catch (error) {
             console.error("Error eliminando ítem:", error);
             alert("No se pudo eliminar el ítem");
+        }
+    };
+
+    const handleProcesarCompra = async () => {
+        if (!carrito || !carrito.items || carrito.items.length === 0) return;
+
+        setProcesandoCompra(true);
+        try {
+            // Mapeamos los ítems incluyendo 'nombreProducto' sacado del diccionario
+            const itemsDTO = carrito.items.map(item => ({
+                productoId: item.productoId,
+                nombreProducto: diccionarioProductos[item.productoId] || `Producto #${item.productoId}`, // <--- NUEVO CAMPO
+                cantidad: item.cantidad,
+                precioUnitario: item.precioUnitario
+            }));
+
+            // Invocar ms-ordenes vía BFF
+            await crearOrden(itemsDTO);
+
+            alert("¡Compra procesada exitosamente! 🚀");
+            
+            // Redirigir al usuario al dashboard
+            navigate('/dashboard');
+
+        } catch (error) {
+            console.error("Error al procesar la orden:", error);
+            alert("Ocurrió un error al procesar tu orden. Inténtalo nuevamente.");
+        } finally {
+            setProcesandoCompra(false);
         }
     };
 
@@ -120,7 +139,6 @@ export function CarritoPage() {
                                 <div key={item.id} className="cart-item-card">
                                     <div className="cart-item-info">
                                         <div className="cart-item-image-placeholder">
-                                            {/* Aquí irá tu imagen después */}
                                             <span>📷</span>
                                         </div>
                                         <div className="cart-item-details">
@@ -140,7 +158,7 @@ export function CarritoPage() {
                                             Cantidad: <b>{item.cantidad}</b>
                                         </div>
                                         <div className="cart-item-price">
-                                            {formatearDinero(item.subtotal)} {/* <-- Subtotal del ítem */}
+                                            {formatearDinero(item.subtotal)}
                                         </div>
                                     </div>
                                 </div>
@@ -153,7 +171,7 @@ export function CarritoPage() {
                             </div>
                         </div>
 
-                        {/* Columna Derecha: Resumen de Compra (Sticky) */}
+                        {/* Columna Derecha: Resumen de Compra */}
                         <div className="cart-summary-section">
                             <div className="cart-summary-card">
                                 <h3>Resumen de compra</h3>
@@ -161,7 +179,7 @@ export function CarritoPage() {
                                 
                                 <div className="summary-row">
                                     <span>Productos ({carrito.items.reduce((acc, item) => acc + item.cantidad, 0)})</span>
-                                    <span>{formatearDinero(carrito.total)}</span> {/* <-- Total parcial */}
+                                    <span>{formatearDinero(carrito.total)}</span>
                                 </div>
                                 <div className="summary-row">
                                     <span>Envío</span>
@@ -172,14 +190,24 @@ export function CarritoPage() {
                                 
                                 <div className="summary-row total-row">
                                     <span>Total</span>
-                                    <span>{formatearDinero(carrito.total)}</span> {/* <-- Total final */}
+                                    <span>{formatearDinero(carrito.total)}</span>
                                 </div>
                                 
                                 <Button 
-                                    style={{ backgroundColor: '#3483fa', color: 'white', width: '100%', padding: '14px 0', fontSize: '1.1rem', borderRadius: '6px', marginTop: '20px' }}
-                                    onClick={() => alert("¡Módulo de pago en construcción! 🚀")}
+                                    style={{ 
+                                        backgroundColor: procesandoCompra ? '#ccc' : '#3483fa', 
+                                        color: 'white', 
+                                        width: '100%', 
+                                        padding: '14px 0', 
+                                        fontSize: '1.1rem', 
+                                        borderRadius: '6px', 
+                                        marginTop: '20px',
+                                        cursor: procesandoCompra ? 'not-allowed' : 'pointer'
+                                    }}
+                                    disabled={procesandoCompra}
+                                    onClick={handleProcesarCompra}
                                 >
-                                    Continuar compra
+                                    {procesandoCompra ? 'Procesando compra...' : 'Continuar compra'}
                                 </Button>
                             </div>
                         </div>

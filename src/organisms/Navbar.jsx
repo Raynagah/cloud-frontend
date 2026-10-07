@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { LoginButton } from '../molecules/LoginButton';
 import { CartButton } from '../molecules/CartButton';
+import { NotificationButton } from '../molecules/NotificationButton';
 import './css/Navbar.css';
 
 export function Navbar() {
@@ -18,6 +19,8 @@ export function Navbar() {
             </div>
             
             <div className="navbar__right">
+                <Link to="/mis-ordenes" className="navbar__link">Mis Órdenes</Link>
+                <NotificationButton />
                 <CartButton />
                 <LoginButton />
             </div>

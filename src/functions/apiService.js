@@ -2,8 +2,8 @@
 import axios from 'axios';
 
 // 1. URL Base de tu API Gateway
-const BFF_BASE_URL = "https://ubu9hwv4t3.execute-api.us-east-1.amazonaws.com/desarrollobff/api/v1/bff";
-
+//const BFF_BASE_URL = "https://ubu9hwv4t3.execute-api.us-east-1.amazonaws.com/desarrollobff/api/v1/bff" || "http://localhost:8084/api/v1/bff";
+const BFF_BASE_URL = "http://localhost:8084/api/v1/bff"||"https://ubu9hwv4t3.execute-api.us-east-1.amazonaws.com/desarrollobff/api/v1/bff" ;
 // 2. Crear la instancia global de Axios
 const apiClient = axios.create({
     baseURL: BFF_BASE_URL,
@@ -44,6 +44,10 @@ export const registrarUsuario = async (usuarioData, token) => {
     });
 };
 
+export const actualizarUsuario = async (id, usuarioData) => {
+    return await apiClient.put(`/usuarios/${id}`, usuarioData);
+};
+
 // --- PRODUCTOS (¡Ya no necesitan el parámetro token!) ---
 export const getProductos = async () => {
     return await apiClient.get('/productos');
@@ -68,4 +72,30 @@ export const eliminarItemCarrito = async (productoId) => {
 
 export const vaciarCarritoBackend = async () => {
     return await apiClient.delete('/carritos');
+};
+// --- ÓRDENES ---
+export const crearOrden = async (items) => {
+    return await apiClient.post('/ordenes/checkout', { items });
+};
+
+// Obtener el historial de compras del usuario
+export const getHistorialOrdenes = async () => {
+    return await apiClient.get('/ordenes');
+};
+
+// Obtener el detalle de una orden por su ID
+export const getOrdenById = async (id) => {
+    return await apiClient.get(`/ordenes/${id}`);
+};
+// --- NOTIFICACIONES ---
+export const getNotificaciones = async () => {
+    return await apiClient.get('/notificaciones');
+};
+
+export const marcarNotificacionLeida = async (id) => {
+    return await apiClient.put(`/notificaciones/${id}/leer`);
+};
+
+export const eliminarNotificacion = async (id) => {
+    return await apiClient.delete(`/notificaciones/${id}`);
 };

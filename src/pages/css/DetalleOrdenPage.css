@@ -1,0 +1,177 @@
+.detalle-orden__bg {
+    background-color: #f4f6f8;
+    min-height: 100vh;
+    padding: 2rem 1rem;
+}
+
+.detalle-orden__container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.btn-volver {
+    color: #3483fa;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    cursor: pointer;
+}
+
+.detalle-orden__header {
+    margin-bottom: 1.5rem;
+}
+
+.detalle-orden__header h2 {
+    margin: 0;
+    color: #1a202c;
+}
+
+.detalle-orden__fecha {
+    color: #718096;
+    font-size: 0.9rem;
+}
+
+/* Card del Stepper */
+.stepper-card {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    margin-bottom: 1.5rem;
+}
+
+.stepper-card h3 {
+    margin-top: 0;
+    margin-bottom: 2rem;
+    color: #2d3748;
+}
+
+/* Stepper horizontal */
+.stepper-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    position: relative;
+    padding: 0 1rem;
+}
+
+.step-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    flex: 1;
+    z-index: 1;
+}
+
+.step-node {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #e2e8f0;
+    color: #a0aec0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    border: 3px solid #cbd5e0;
+    transition: all 0.3s ease;
+}
+
+.step-item.completed .step-node {
+    background-color: #dcfce7;
+    border-color: #16a34a;
+}
+
+.step-item.active .step-node {
+    background-color: #dbeafe;
+    border-color: #2563eb;
+    transform: scale(1.15);
+    box-shadow: 0 0 12px rgba(37, 99, 235, 0.3);
+}
+
+.step-label {
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #a0aec0;
+    text-align: center;
+}
+
+.step-item.completed .step-label,
+.step-item.active .step-label {
+    color: #1a202c;
+}
+
+/* Línea conectora entre pasos */
+.step-line {
+    position: absolute;
+    top: 25px;
+    left: 50%;
+    width: 100%;
+    height: 4px;
+    background-color: #e2e8f0;
+    z-index: -1;
+}
+
+.step-line.filled {
+    background-color: #16a34a;
+}
+
+/* Banner si la orden fue cancelada */
+.cancelado-banner {
+    background-color: #fee2e2;
+    color: #dc2626;
+    padding: 1rem;
+    border-radius: 8px;
+    font-weight: 500;
+    text-align: center;
+}
+
+/* Card de artículos */
+.detalle-orden__items-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+.items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.item-qty {
+    font-weight: bold;
+    margin-right: 0.5rem;
+    color: #2563eb;
+}
+
+.divider {
+    border: none;
+    border-top: 1px solid #e2e8f0;
+    margin: 1rem 0;
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #1f2937;
+}
+
+.total-monto {
+    color: #16a34a;
+}
+
+.historial__card--clickable {
+    cursor: pointer;
+}

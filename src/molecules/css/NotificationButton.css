@@ -1,0 +1,228 @@
+.notif-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+/* Botón Icono */
+.notif-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    font-size: 1.3rem;
+    padding: 8px 10px;
+    border-radius: 50%;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notif-btn:hover,
+.notif-btn--active {
+    background-color: rgba(255, 255, 255, 0.12);
+}
+
+.notif-btn:active {
+    transform: scale(0.95);
+}
+
+.notif-btn__badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background-color: #ef4444;
+    color: #ffffff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    border-radius: 10px;
+    padding: 1px 6px;
+    line-height: 1.2;
+    box-shadow: 0 0 0 2px #1e1e2f;
+}
+
+/* Menú Dropdown Flotante */
+.notif-menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 10px);
+    width: 360px;
+    background-color: #1e1e2f;
+    border: 1px solid #2d2d44;
+    border-radius: 14px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+    z-index: 1000;
+    overflow: hidden;
+    color: #ffffff;
+    animation: fadeInDropdown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeInDropdown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Encabezado Dropdown */
+.notif-menu__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 18px;
+    background-color: #25253d;
+    border-bottom: 1px solid #2d2d44;
+}
+
+.notif-menu__title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #f8fafc;
+}
+
+.notif-menu__unread-tag {
+    background-color: #3b82f6;
+    color: #ffffff;
+    font-size: 0.72rem;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+}
+
+.notif-menu__all-read {
+    color: #10b981;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Cuerpo con Lista de Notificaciones */
+.notif-menu__body {
+    max-height: 350px;
+    overflow-y: auto;
+}
+
+/* Scrollbar personalizado */
+.notif-menu__body::-webkit-scrollbar {
+    width: 6px;
+}
+.notif-menu__body::-webkit-scrollbar-thumb {
+    background-color: #33334d;
+    border-radius: 3px;
+}
+
+.notif-menu__empty {
+    padding: 32px 16px;
+    text-align: center;
+    color: #94a3b8;
+    margin: 0;
+    font-size: 0.875rem;
+}
+
+.notif-menu__empty span {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 8px;
+}
+
+/* Items individuales */
+.notif-item {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid #28283f;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+    gap: 12px;
+}
+
+.notif-item:hover {
+    background-color: #272740;
+}
+
+.notif-item--unread {
+    background-color: rgba(59, 130, 246, 0.08);
+    border-left: 4px solid #3b82f6;
+}
+
+.notif-item__content {
+    flex: 1;
+    min-width: 0; /* Permite recortes con ellipsis */
+}
+
+.notif-item__title {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.notif-item__message {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    margin: 0 0 6px 0;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Trunca a un máximo de 2 líneas */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.notif-item__date {
+    font-size: 0.72rem;
+    color: #64748b;
+    display: block;
+}
+
+/* Botón marcar leída rápida */
+.notif-item__read-btn {
+    background: transparent;
+    border: 1px solid #3b82f6;
+    color: #3b82f6;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.notif-item__read-btn:hover {
+    background-color: #3b82f6;
+    color: #ffffff;
+}
+
+/* Pie del menú */
+.notif-menu__footer {
+    padding: 12px;
+    background-color: #25253d;
+    text-align: center;
+    border-top: 1px solid #2d2d44;
+}
+
+.notif-menu__see-all {
+    background: none;
+    border: none;
+    color: #60a5fa;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: color 0.15s ease;
+}
+
+.notif-menu__see-all:hover {
+    color: #93c5fd;
+    text-decoration: underline;
+}
