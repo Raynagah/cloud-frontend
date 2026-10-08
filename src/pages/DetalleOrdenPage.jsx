@@ -1,17 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getOrdenById } from '../functions/apiService';
 import { Button } from '../atoms/Button';
 import { formatearDinero } from '../utils/formatCurrency';
+import { ESTADOS_ORDEN, PASOS_SECUENCIA } from '../constants/estadosOrden';
 import './css/DetalleOrdenPage.css';
-
-// Secuencia cronológica del despacho
-const PASOS_SECUENCIA = [
-    { key: 'PROCESADO',      label: 'Orden Procesada', icon: '📝' },
-    { key: 'EN_PREPARACION', label: 'En Preparación', icon: '📦' },
-    { key: 'EN_TRANSITO',    label: 'En Tránsito',    icon: '🚚' },
-    { key: 'ENTREGADO',      label: 'Entregado',      icon: '✅' }
-];
 
 export function DetalleOrdenPage() {
     const { id } = useParams();
@@ -19,36 +12,47 @@ export function DetalleOrdenPage() {
 
     const [orden, setOrden] = useState(null);
     const [cargando, setCargando] = useState(true);
+    const [error, setError] = useState(null);
 
-    useEffect(() => {
-        cargarDetalleOrden();
-    }, [id]);
-
-    const cargarDetalleOrden = async () => {
+    const cargarDetalleOrden = useCallback(async (silencioso = false) => {
+        if (!silencioso) setCargando(true);
         try {
             const res = await getOrdenById(id);
             setOrden(res.data);
-        } catch (error) {
-            console.error("Error al cargar detalle de la orden:", error);
+            setError(null);
+        } catch (err) {
+            console.error("Error al cargar detalle de la orden:", err);
+            setError("No se pudo cargar la orden. Inténtalo nuevamente.");
         } finally {
-            setCargando(false);
+            if (!silencioso) setCargando(false);
         }
-    };
+    }, [id]);
+
+    useEffect(() => {
+        cargarDetalleOrden();
+
+        // Polling cada 10s para refrescar el stepper si no es un estado final
+        const interval = setInterval(() => {
+            if (orden && orden.estado !== 'ENTREGADO' && orden.estado !== 'CANCELADO') {
+                cargarDetalleOrden(true);
+            }
+        }, 10000);
+
+        return () => clearInterval(interval);
+    }, [cargarDetalleOrden, orden?.estado]);
 
     if (cargando) return <p className="detalle-orden__loading">Cargando estado del envío... ⌛</p>;
-    if (!orden) return (
+
+    if (error || !orden) return (
         <div className="detalle-orden__container">
-            <h2>Orden no encontrada 🔍</h2>
+            <h2>{error || "Orden no encontrada 🔍"}</h2>
             <Button onClick={() => navigate('/mis-ordenes')}>Volver al historial</Button>
         </div>
     );
 
     const esCancelado = orden.estado === 'CANCELADO';
-
-    // Determinar índice actual en la secuencia (0 = PROCESADO, 1 = EN_PREPARACION, etc.)
-    const indiceEstadoActual = PASOS_SECUENCIA.findIndex(
-        step => step.key === (orden.estado || 'PROCESADO')
-    );
+    const estadoInfo = ESTADOS_ORDEN[orden.estado] || ESTADOS_ORDEN.PROCESADO;
+    const indiceEstadoActual = estadoInfo.pasoIndex;
 
     return (
         <div className="detalle-orden__bg">
@@ -60,11 +64,10 @@ export function DetalleOrdenPage() {
                 <div className="detalle-orden__header">
                     <h2>Seguimiento de Orden #{orden.id}</h2>
                     <span className="detalle-orden__fecha">
-                        Fecha de compra: {new Date(orden.fechaCreacion).toLocaleDateString()}
+                        Fecha de compra: {new Date(orden.fechaCreacion).toLocaleDateString('es-CL')}
                     </span>
                 </div>
 
-                {/* --- BARRA DE PROGRESO / STEPPER --- */}
                 <div className="stepper-card">
                     <h3>Estado del Envío</h3>
 
@@ -97,12 +100,11 @@ export function DetalleOrdenPage() {
                     )}
                 </div>
 
-                {/* --- DETALLE DE ARTÍCULOS --- */}
                 <div className="detalle-orden__items-card">
                     <h3>Productos en esta orden</h3>
                     <div className="items-list">
                         {(orden.detalles || orden.items)?.map((item, index) => (
-                            <div key={index} className="item-row">
+                            <div key={item.id || index} className="item-row">
                                 <div className="item-info">
                                     <span className="item-qty">{item.cantidad}x</span>
                                     <span className="item-name">
