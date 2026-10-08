@@ -14,7 +14,14 @@ RUN npm install
 # Copiamos el resto del código fuente
 COPY . .
 
-# Generamos el build de producción (asegúrate de tener base: './' en tu vite.config.js si aplica)
+# ⚠️ DECLARAMOS ARGUMENTOS Y VARIABLES PARA QUE VITE LAS INYECTE EN EL BUILD
+ARG VITE_BFF_URL
+ARG VITE_REDIRECT_URI
+
+ENV VITE_BFF_URL=$VITE_BFF_URL
+ENV VITE_REDIRECT_URI=$VITE_REDIRECT_URI
+
+# Generamos el build de producción
 RUN npm run build
 
 # ==========================================
