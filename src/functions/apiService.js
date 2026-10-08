@@ -3,7 +3,7 @@ import axios from 'axios';
 // 1. Usar variable de entorno de React (con fallback a localhost para desarrollo)
 // Si usas Create React App usa process.env.REACT_APP_BFF_URL
 // Si usas Vite usa import.meta.env.VITE_BFF_URL
-const BFF_BASE_URL = process.env.REACT_APP_BFF_URL || "http://localhost:8084/api/v1/bff";
+const BFF_BASE_URL = import.meta.env.VITE_BFF_URL || "http://localhost:8084/api/v1/bff";
 
 // 2. Crear la instancia global de Axios
 const apiClient = axios.create({
