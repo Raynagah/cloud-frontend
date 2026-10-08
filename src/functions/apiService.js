@@ -1,9 +1,10 @@
-// src/functions/apiService.js
 import axios from 'axios';
 
-// 1. URL Base de tu API Gateway
-//const BFF_BASE_URL = "https://ubu9hwv4t3.execute-api.us-east-1.amazonaws.com/desarrollobff/api/v1/bff" || "http://localhost:8084/api/v1/bff";
-const BFF_BASE_URL = "http://localhost:8084/api/v1/bff"||"https://ubu9hwv4t3.execute-api.us-east-1.amazonaws.com/desarrollobff/api/v1/bff" ;
+// 1. Usar variable de entorno de React (con fallback a localhost para desarrollo)
+// Si usas Create React App usa process.env.REACT_APP_BFF_URL
+// Si usas Vite usa import.meta.env.VITE_BFF_URL
+const BFF_BASE_URL = process.env.REACT_APP_BFF_URL || "http://localhost:8084/api/v1/bff";
+
 // 2. Crear la instancia global de Axios
 const apiClient = axios.create({
     baseURL: BFF_BASE_URL,
@@ -12,17 +13,15 @@ const apiClient = axios.create({
     }
 });
 
-// 3. EL INTERCEPTOR MÁGICO 🪄
+// 3. INTERCEPTOR MÁGICO 🪄
 apiClient.interceptors.request.use(
     (config) => {
-        // Si la petición ya trae un token (ej. Login/Registro), lo respetamos
         if (!config.headers.Authorization) {
-            // Buscamos el token en localStorage
             const backendDataStr = localStorage.getItem('backendData');
             if (backendDataStr) {
                 const { token } = JSON.parse(backendDataStr);
                 if (token) {
-                    config.headers.Authorization = `Bearer ${token}`; // Sello automático
+                    config.headers.Authorization = `Bearer ${token}`;
                 }
             }
         }
@@ -31,7 +30,7 @@ apiClient.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
-// --- USUARIOS Y LOGIN (Requieren token manual porque aún no se ha guardado en localStorage) ---
+// --- USUARIOS Y LOGIN ---
 export const loginBackend = async (correo, token) => {
     return await apiClient.post('/usuarios/login', { correo }, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -48,7 +47,7 @@ export const actualizarUsuario = async (id, usuarioData) => {
     return await apiClient.put(`/usuarios/${id}`, usuarioData);
 };
 
-// --- PRODUCTOS (¡Ya no necesitan el parámetro token!) ---
+// --- PRODUCTOS ---
 export const getProductos = async () => {
     return await apiClient.get('/productos');
 };
@@ -57,7 +56,7 @@ export const getProductoById = async (id) => {
     return await apiClient.get(`/productos/${id}`);
 };
 
-// --- CARRITO (¡Tampoco necesitan el token!) ---
+// --- CARRITO ---
 export const getCarrito = async () => {
     return await apiClient.get('/carritos');
 };
@@ -73,20 +72,20 @@ export const eliminarItemCarrito = async (productoId) => {
 export const vaciarCarritoBackend = async () => {
     return await apiClient.delete('/carritos');
 };
+
 // --- ÓRDENES ---
 export const crearOrden = async (items) => {
     return await apiClient.post('/ordenes/checkout', { items });
 };
 
-// Obtener el historial de compras del usuario
 export const getHistorialOrdenes = async () => {
     return await apiClient.get('/ordenes');
 };
 
-// Obtener el detalle de una orden por su ID
 export const getOrdenById = async (id) => {
     return await apiClient.get(`/ordenes/${id}`);
 };
+
 // --- NOTIFICACIONES ---
 export const getNotificaciones = async () => {
     return await apiClient.get('/notificaciones');
