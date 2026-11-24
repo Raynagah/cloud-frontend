@@ -5,7 +5,17 @@ import { CartButton } from '../molecules/CartButton';
 import { NotificationButton } from '../molecules/NotificationButton';
 import './css/Navbar.css';
 
+// Solo cosmético: oculta el enlace a quien no es admin. La protección real está en el servidor.
+const esAdminLocal = () => {
+    try {
+        return JSON.parse(localStorage.getItem('backendData') || '{}').usuario?.tipoUsuario === 'admin';
+    } catch {
+        return false;
+    }
+};
+
 export function Navbar() {
+    const mostrarAnalitica = esAdminLocal();
     return (
         <nav className="navbar">
             <div className="navbar__left">
@@ -13,6 +23,11 @@ export function Navbar() {
                 <Link to="/dashboard" className="navbar__link">
                     Productos
                 </Link>
+                {mostrarAnalitica && (
+                    <Link to="/analitica" className="navbar__link">
+                        Analítica
+                    </Link>
+                )}
                 <Link to="/perfil" className="navbar__link">
                     Mi Perfil
                 </Link>

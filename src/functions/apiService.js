@@ -37,6 +37,12 @@ export const loginBackend = async (correo, token) => {
     });
 };
 
+// Usuario dueño del token con su rol REAL (lo decide el servidor). Úsalo para autorizar la UI;
+// el rol guardado en localStorage es solo informativo y el usuario puede modificarlo.
+export const getMe = async () => {
+    return await apiClient.get('/usuarios/me');
+};
+
 export const registrarUsuario = async (usuarioData, token) => {
     return await apiClient.post('/usuarios', usuarioData, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -54,6 +60,14 @@ export const getProductos = async () => {
 
 export const getProductoById = async (id) => {
     return await apiClient.get(`/productos/${id}`);
+};
+
+// --- ANALÍTICA Y RECOMENDACIONES ---
+// URL del WebSocket de métricas en tiempo real (ms-analytics-recommendations)
+export const ANALYTICS_WS_URL = import.meta.env.VITE_ANALYTICS_WS_URL || "ws://localhost:8089/ws/metrics";
+
+export const getRecomendaciones = async (productoId, max = 4) => {
+    return await apiClient.get('/analitica/recomendaciones', { params: { productoId, max } });
 };
 
 // --- CARRITO ---
@@ -97,4 +111,13 @@ export const marcarNotificacionLeida = async (id) => {
 
 export const eliminarNotificacion = async (id) => {
     return await apiClient.delete(`/notificaciones/${id}`);
+};
+
+// --- PAGOS (siempre a través del BFF) ---
+export const iniciarPagoWebpay = async (peticionData) => {
+    return await apiClient.post('/pagos/iniciar', peticionData);
+};
+
+export const confirmarPagoWebpay = async (tokenWs) => {
+    return await apiClient.post('/pagos/commit', null, { params: { token_ws: tokenWs } });
 };

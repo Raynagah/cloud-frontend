@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getCarrito, vaciarCarritoBackend, eliminarItemCarrito, getProductos, crearOrden } from '../functions/apiService';
 import { Button } from '../atoms/Button';
 import { formatearDinero } from '../utils/formatCurrency';
+import { iniciarPagoWebpay } from '../functions/apiService';
 import './css/CarritoPage.css'; 
 
 export function CarritoPage() {
@@ -73,26 +74,40 @@ export function CarritoPage() {
 
         setProcesandoCompra(true);
         try {
-            // Mapeamos los ítems incluyendo 'nombreProducto' sacado del diccionario
-            const itemsDTO = carrito.items.map(item => ({
-                productoId: item.productoId,
-                nombreProducto: diccionarioProductos[item.productoId] || `Producto #${item.productoId}`, // <--- NUEVO CAMPO
-                cantidad: item.cantidad,
-                precioUnitario: item.precioUnitario
-            }));
+            // 1. Preparamos los datos para iniciar el pago
+            const transactionId = `TX-${Date.now()}`; // Generamos un ID único temporal
+            const peticionPago = {
+                clientId: backendData?.usuario?.correo || backendData?.correo || String(backendData?.usuario?.id || backendData?.id || "cliente-desconocido"),
+                amount: carrito.total,
+                transactionId: transactionId
+            };
 
-            // Invocar ms-ordenes vía BFF
-            await crearOrden(itemsDTO);
+            // 2. Llamamos al backend para iniciar la transacción con Webpay
+            const response = await iniciarPagoWebpay(peticionPago);
+            const { url, token } = response.data;
 
-            alert("¡Compra procesada exitosamente! 🚀");
+            // 3. Redirigimos a la pasarela de Webpay creando un formulario dinámico
+            // Webpay requiere que se le envíe el token_ws mediante un POST
+            const form = document.createElement('form');
+            form.action = url;
+            form.method = 'POST';
             
-            // Redirigir al usuario al dashboard
-            navigate('/dashboard');
+            const inputToken = document.createElement('input');
+            inputToken.type = 'hidden';
+            inputToken.name = 'token_ws';
+            inputToken.value = token;
+            
+            form.appendChild(inputToken);
+            document.body.appendChild(form);
+            form.submit(); // ¡Despegamos hacia Transbank! 🚀
 
         } catch (error) {
-            console.error("Error al procesar la orden:", error);
-            alert("Ocurrió un error al procesar tu orden. Inténtalo nuevamente.");
-        } finally {
+            console.error("Error al iniciar el pago con Webpay:", error);
+            if (error.response?.status === 429) {
+                alert("Estás bloqueado temporalmente por demasiados intentos de pago. Espera 30 minutos.");
+            } else {
+                alert("Ocurrió un error al conectar con Webpay. Inténtalo nuevamente.");
+            }
             setProcesandoCompra(false);
         }
     };

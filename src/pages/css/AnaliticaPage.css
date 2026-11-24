@@ -1,0 +1,31 @@
+.analitica__header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+    margin-bottom: 25px; border-bottom: 2px solid #e1e5eb; padding-bottom: 15px; }
+.analitica__title { font-size: 2rem; color: #1a1525; margin: 0; font-weight: 800; }
+.analitica__estado { font-weight: 700; font-size: .95rem; }
+.analitica__estado--conectado { color: #1f9d55; }
+.analitica__estado--conectando, .analitica__estado--desconectado { color: #d98e04; }
+.analitica__vacio { color: #6b6578; }
+
+.analitica__kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; margin-bottom: 22px; }
+.analitica__kpi { background: #7a28cb; color: #fff; border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 4px; }
+.analitica__kpi--alerta { background: #1a1525; }
+.analitica__kpi-valor { font-size: 2.4rem; font-weight: 800; line-height: 1; }
+.analitica__kpi-label { opacity: .85; }
+
+.analitica__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+.analitica__card { background: #fff; border: 1px solid #e1e5eb; border-radius: 14px; padding: 18px; }
+.analitica__card h3 { margin: 0 0 14px; color: #1a1525; }
+
+.analitica__fila { display: grid; grid-template-columns: 1fr 1.2fr auto; gap: 10px; align-items: center; margin-bottom: 10px; }
+.analitica__fila-nombre { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.analitica__barra-fondo { background: #f4f0fa; border-radius: 6px; height: 12px; }
+.analitica__barra { background: #7a28cb; height: 100%; border-radius: 6px; transition: width .6s ease; }
+
+.analitica__columnas { display: flex; align-items: flex-end; gap: 6px; height: 170px; }
+.analitica__columna { flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 3px; }
+.analitica__columna-barra { width: 100%; min-height: 2px; background: #7a28cb; border-radius: 4px 4px 0 0; transition: height .6s ease; }
+.analitica__columna-valor { font-size: .75rem; color: #1a1525; }
+.analitica__columna small { font-size: .65rem; color: #6b6578; }
+
+.analitica__lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.analitica__lista li { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px dashed #e1e5eb; padding-bottom: 6px; }

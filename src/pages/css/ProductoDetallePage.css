@@ -166,3 +166,17 @@
         flex-direction: column; /* Apila los botones en celular */
     }
 }
+
+/* Recomendaciones (analítica) */
+.product-recs { margin-top: 40px; }
+.product-recs__title { font-size: 1.4rem; color: #1a1525; margin-bottom: 15px; }
+.product-recs__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 18px; }
+.product-recs__card {
+    display: flex; flex-direction: column; gap: 6px; padding: 12px; cursor: pointer;
+    background: #fff; border: 1px solid #e1e5eb; border-radius: 12px; transition: transform .15s, box-shadow .15s;
+}
+.product-recs__card:hover { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(122, 40, 203, .15); }
+.product-recs__img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 8px; background: #f4f0fa; }
+.product-recs__name { color: #1a1525; }
+.product-recs__price { color: #7a28cb; font-weight: 700; }
+.product-recs__reason { color: #6b6578; }

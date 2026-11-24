@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getProductoById, agregarItemCarrito } from '../functions/apiService';
+import { getProductoById, agregarItemCarrito, getProductos, getRecomendaciones } from '../functions/apiService';
 import { Button } from '../atoms/Button';
 import { formatearDinero } from '../utils/formatCurrency';
 import './css/ProductoDetallePage.css'; 
@@ -15,6 +15,7 @@ export function ProductoDetallePage() {
     const [cargando, setCargando] = useState(true);
     const [cantidad, setCantidad] = useState(1);
     const [procesando, setProcesando] = useState(false);
+    const [recomendados, setRecomendados] = useState([]);
 
     // Placeholder para productos sin imagen
     const imagenPorDefecto = "https://via.placeholder.com/450x450/f4f0fa/7a28cb?text=Sin+Imagen";
@@ -33,11 +34,29 @@ export function ProductoDetallePage() {
             // 3. Axios ya procesó el JSON en res.data
             setProducto(res.data);
             setCantidad(res.data.stock > 0 ? 1 : 0);
+            cargarRecomendaciones();
             
         } catch (err) {
             console.error("Error al cargar producto:", err);
         } finally {
             setCargando(false);
+        }
+    };
+
+    // Recomendaciones generadas por ms-analytics-recommendations a partir del clickstream (Kafka).
+    // Se cruzan con el catálogo para mostrar nombre, precio e imagen actualizados.
+    const cargarRecomendaciones = async () => {
+        try {
+            const [recs, catalogo] = await Promise.all([getRecomendaciones(id, 4), getProductos()]);
+            const porId = new Map(catalogo.data.map(p => [p.id, p]));
+            setRecomendados(
+                recs.data
+                    .map(r => porId.get(r.productoId) ? { ...porId.get(r.productoId), motivo: r.motivo } : null)
+                    .filter(Boolean)
+            );
+        } catch (err) {
+            console.warn("No se pudieron cargar las recomendaciones", err);
+            setRecomendados([]);
         }
     };
 
@@ -189,6 +208,22 @@ export function ProductoDetallePage() {
                 </div>
 
             </div>
+
+            {recomendados.length > 0 && (
+                <section className="product-recs">
+                    <h3 className="product-recs__title">También te podría interesar ✨</h3>
+                    <div className="product-recs__grid">
+                        {recomendados.map(r => (
+                            <div key={r.id} className="product-recs__card" onClick={() => navigate(`/producto/${r.id}`)}>
+                                <img src={r.imagenUrl || imagenPorDefecto} alt={r.nombre} className="product-recs__img" />
+                                <strong className="product-recs__name">{r.nombre}</strong>
+                                <span className="product-recs__price">{formatearDinero(r.precio)}</span>
+                                <small className="product-recs__reason">{r.motivo}</small>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            )}
         </div>
     );
 }
