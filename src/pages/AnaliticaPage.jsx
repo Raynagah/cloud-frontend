@@ -5,6 +5,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ANALYTICS_WS_URL } from '../functions/apiService';
 import './css/AnaliticaPage.css';
+import { obtenerAccessToken } from '../auth/msalInstance';
 
 const ETIQUETAS_TIPO = {
     PRODUCTO_VISTO: 'Productos vistos',
@@ -25,53 +26,70 @@ export function AnaliticaPage() {
 
     const wsRef = useRef(null);
     const reintentoRef = useRef(null);
-    const activoRef = useRef(true);
     const fallosRef = useRef(0);
 
     useEffect(() => {
-
-        // Permite desactivar temporalmente WebSocket durante
-        // las pruebas de autenticación con Azure.
         if (ANALYTICS_WS_URL === "disabled") {
             setEstado("deshabilitado");
             return;
         }
 
-        activoRef.current = true;
+        let activo = true;
         fallosRef.current = 0;
 
-        const conectar = () => {
-            if (!activoRef.current) {
+        const conectar = async () => {
+            if (!activo) return;
+
+            setEstado('conectando');
+
+            let token;
+
+            try {
+                // MSAL obtiene y renueva el Access Token.
+                token = await obtenerAccessToken();
+            } catch (error) {
+                if (activo) {
+                    setEstado('rechazado');
+
+                    console.error(
+                        'No se pudo obtener el Access Token:',
+                        error.errorCode || error.message
+                    );
+                }
                 return;
             }
 
-            let token = '';
-
-            try {
-                token = JSON.parse(
-                    localStorage.getItem('backendData') || '{}'
-                ).token || '';
-            } catch {
-                // Token inválido en localStorage
-            }
+            if (!activo) return;
 
             if (!token) {
                 setEstado('rechazado');
                 return;
             }
 
-            setEstado('conectando');
+            let ws;
 
-            const ws = new WebSocket(
-                `${ANALYTICS_WS_URL}?token=${encodeURIComponent(token)}`
-            );
+            try {
+                const url = new URL(ANALYTICS_WS_URL);
 
-            wsRef.current = ws;
+                if (url.protocol !== 'wss:') {
+                    throw new Error('Se requiere una conexión WSS.');
+                }
+
+                url.searchParams.set('token', token);
+
+                ws = new WebSocket(url.toString());
+                wsRef.current = ws;
+
+            } catch {
+                setEstado('rechazado');
+                console.error('No se pudo iniciar el WebSocket.');
+                return;
+            }
 
             let abierto = false;
 
             ws.onopen = () => {
-                if (!activoRef.current) return;
+                if (!activo) return;
 
                 abierto = true;
                 fallosRef.current = 0;
@@ -79,22 +97,18 @@ export function AnaliticaPage() {
             };
 
             ws.onmessage = (ev) => {
-                if (!activoRef.current) return;
+                if (!activo) return;
 
                 try {
                     setMetricas(JSON.parse(ev.data));
-                } catch (e) {
-                    console.error('Mensaje de métricas inválido', e);
+                } catch {
+                    console.error('Mensaje de métricas inválido.');
                 }
             };
 
             ws.onclose = () => {
-                if (!activoRef.current) {
-                    return;
-                }
+                if (!activo) return;
 
-                // Cerrado antes de abrir:
-                // handshake rechazado o servidor caído.
                 if (!abierto) {
                     fallosRef.current += 1;
                 }
@@ -106,8 +120,10 @@ export function AnaliticaPage() {
 
                 setEstado('desconectado');
 
-                // Reconexión automática cada 3 segundos.
-                reintentoRef.current = setTimeout(conectar, 3000);
+                reintentoRef.current = setTimeout(
+                    conectar,
+                    3000
+                );
             };
 
             ws.onerror = () => {
@@ -118,7 +134,7 @@ export function AnaliticaPage() {
         conectar();
 
         return () => {
-            activoRef.current = false;
+            activo = false;
 
             clearTimeout(reintentoRef.current);
 
@@ -162,9 +178,8 @@ export function AnaliticaPage() {
                     Analítica en tiempo real 📊
                 </h1>
 
-                <span className={`analitica__estado analitica__estado--${
-                    estado === 'deshabilitado' ? 'rechazado' : estado
-                }`}>
+                <span className={`analitica__estado analitica__estado--${estado === 'deshabilitado' ? 'rechazado' : estado
+                    }`}>
                     ● {etiquetasEstado[estado]}
                 </span>
             </div>

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { obtenerAccessToken } from '../auth/msalInstance';  
 
 // 1. Usar variable de entorno de React (con fallback a localhost para desarrollo)
 // Si usas Create React App usa process.env.REACT_APP_BFF_URL
@@ -14,27 +15,22 @@ const apiClient = axios.create({
 });
 
 // 3. INTERCEPTOR MÁGICO 🪄
+// Interceptor de autenticación mediante Microsoft Azure.
 apiClient.interceptors.request.use(
-    (config) => {
+    async (config) => {
         if (!config.headers.Authorization) {
-            const backendDataStr = localStorage.getItem('backendData');
-            if (backendDataStr) {
-                const { token } = JSON.parse(backendDataStr);
-                if (token) {
-                    config.headers.Authorization = `Bearer ${token}`;
-                }
-            }
+            const token = await obtenerAccessToken();
+            config.headers.Authorization = `Bearer ${token}`;
         }
+
         return config;
     },
     (error) => Promise.reject(error)
 );
 
 // --- USUARIOS Y LOGIN ---
-export const loginBackend = async (correo, token) => {
-    return await apiClient.post('/usuarios/login', { correo }, {
-        headers: { 'Authorization': `Bearer ${token}` }
-    });
+export const loginBackend = async (correo) => {
+    return await apiClient.post('/usuarios/login', { correo });
 };
 
 // Usuario dueño del token con su rol REAL (lo decide el servidor). Úsalo para autorizar la UI;
@@ -43,10 +39,8 @@ export const getMe = async () => {
     return await apiClient.get('/usuarios/me');
 };
 
-export const registrarUsuario = async (usuarioData, token) => {
-    return await apiClient.post('/usuarios', usuarioData, {
-        headers: { 'Authorization': `Bearer ${token}` }
-    });
+export const registrarUsuario = async (usuarioData) => {
+    return await apiClient.post('/usuarios', usuarioData);
 };
 
 export const actualizarUsuario = async (id, usuarioData) => {

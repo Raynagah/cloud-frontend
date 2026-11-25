@@ -4,11 +4,9 @@ import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
 import './index.css';
 
-import { PublicClientApplication, EventType } from "@azure/msal-browser";
+import { EventType } from "@azure/msal-browser";
 import { MsalProvider } from "@azure/msal-react";
-import { msalConfig } from "./auth/AuthConfig";
-
-const msalInstance = new PublicClientApplication(msalConfig);
+import { msalInstance } from "./auth/msalInstance";
 
 // Registro de fallos interactivos (login/acquireToken) en consola con detalle.
 msalInstance.addEventCallback((event) => {
@@ -46,6 +44,9 @@ async function bootstrap() {
   try {
     const response = await msalInstance.handleRedirectPromise();
     if (response) {
+      if (response.account) {
+          msalInstance.setActiveAccount(response.account);
+      }
       console.info("Autenticacion por redirect completada:", {
         usuario: response.account?.username,
         scopes: response.scopes
@@ -67,6 +68,25 @@ async function bootstrap() {
       </MsalProvider>
     </React.StrictMode>
   );
+  // Eliminar credenciales almacenadas por versiones anteriores.
+localStorage.removeItem('tempToken');
+
+try {
+    const datos = JSON.parse(
+        localStorage.getItem('backendData') || 'null'
+    );
+
+    if (datos) {
+        localStorage.setItem(
+            'backendData',
+            JSON.stringify({
+                usuario: datos.usuario
+            })
+        );
+    }
+} catch {
+    localStorage.removeItem('backendData');
+}
 }
 
 bootstrap().catch((error) => {

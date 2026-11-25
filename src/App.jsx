@@ -16,13 +16,16 @@ import { EditProfilePage } from './pages/EditProfilePage';
 import { CallbackWebpayPage } from './pages/CallbackWebpayPage'; 
 import { AnaliticaPage } from './pages/AnaliticaPage';
 import { AdminRoute } from './templates/AdminRoute';
+import { AvisoSesion } from './molecules/AvisoSesion';
 
 function App() {
   const isAuthenticated = useIsAuthenticated();
 
   return (
     <BrowserRouter basename="/desarrollo">
-      <Routes>
+    <AvisoSesion />
+
+    <Routes>
         <Route path="/" element={<LoginPage />} />
         
         {/* Ruta pública para recibir el retorno de Transbank */}
